@@ -278,7 +278,16 @@
       }, 300);
     }
 
-    if (openBtn) openBtn.addEventListener("click", openCart);
+    if (openBtn) {
+      openBtn.addEventListener("click", function (e) {
+        var href = openBtn.getAttribute("href") || "";
+        // Real cart / auth links navigate; only open demo drawer for bare #
+        if (openBtn.hasAttribute("data-auth-open")) return;
+        if (href && href !== "#") return;
+        e.preventDefault();
+        openCart();
+      });
+    }
     if (closeBtn) closeBtn.addEventListener("click", closeCart);
     if (backdrop) backdrop.addEventListener("click", closeCart);
     document.addEventListener("keydown", function (e) {

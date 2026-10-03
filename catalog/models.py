@@ -1,6 +1,10 @@
+import re
+
 from django.db import models
-from django.db.models import Q
+from django.db.models import F, Q
 from django.utils.text import slugify
+
+_FA_TO_EN = str.maketrans("۰۱۲۳۴۵۶۷۸۹", "0123456789")
 
 
 def customer_public_review_q(prefix=""):
@@ -25,6 +29,14 @@ class Product(models.Model):
     retail_price = models.PositiveIntegerField()
     old_retail_price = models.PositiveIntegerField(null=True, blank=True)
     weight = models.CharField(max_length=40, default="۵ کیلو")
+    stock_kg = models.PositiveIntegerField(
+        default=500,
+        help_text="موجودی فعلی انبار به کیلوگرم",
+    )
+    low_stock_kg = models.PositiveIntegerField(
+        default=50,
+        help_text="اگر موجودی از این مقدار کمتر شود، هشدار کمبود نمایش داده می‌شود",
+    )
     featured = models.BooleanField(default=False)
     on_deal = models.BooleanField(default=False)
     description = models.TextField(blank=True, help_text="متن معرفی زیر عنوان محصول")
@@ -43,6 +55,51 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def package_kg(self):
+        """Kg per sold package, parsed from weight label (e.g. ۵ کیلو → 5)."""
+        text = (self.weight or "").translate(_FA_TO_EN)
+        match = re.search(r"(\d+)", text)
+        return max(1, int(match.group(1))) if match else 5
+
+    def kg_for_quantity(self, quantity):
+        try:
+            qty = max(0, int(quantity))
+        except (TypeError, ValueError):
+            qty = 0
+        return qty * self.package_kg
+
+    @property
+    def is_low_stock(self):
+        return self.stock_kg <= self.low_stock_kg
+
+    @property
+    def is_out_of_stock(self):
+        return self.stock_kg < self.package_kg
+
+    def available_packages(self):
+        return self.stock_kg // self.package_kg
+
+    def can_fulfill(self, quantity):
+        return self.stock_kg >= self.kg_for_quantity(quantity)
+
+    def decrease_stock(self, quantity):
+        need = self.kg_for_quantity(quantity)
+        updated = (
+            Product.objects.filter(pk=self.pk, stock_kg__gte=need).update(
+                stock_kg=F("stock_kg") - need
+            )
+        )
+        if updated:
+            self.refresh_from_db(fields=["stock_kg"])
+        return bool(updated), need
+
+    def increase_stock(self, quantity):
+        add = self.kg_for_quantity(quantity)
+        Product.objects.filter(pk=self.pk).update(stock_kg=F("stock_kg") + add)
+        self.refresh_from_db(fields=["stock_kg"])
+        return add
 
     def save(self, *args, **kwargs):
         if not self.slug:

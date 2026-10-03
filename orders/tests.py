@@ -20,6 +20,8 @@ class ShopTestCase(TestCase):
             wholesale_price=403000,
             retail_price=480000,
             featured=True,
+            stock_kg=100,
+            low_stock_kg=40,
         )
         self.customer = User.objects.create_user(username="09121234567", password="secret12")
         Profile.objects.create(
@@ -157,11 +159,69 @@ class ShopTestCase(TestCase):
         item.refresh_from_db()
         self.assertEqual(item.quantity, 3)
 
-        self.client.post(reverse("checkout"))
+        page = self.client.get(reverse("checkout"))
+        self.assertEqual(page.status_code, 200)
+        self.assertContains(page, "کد پستی")
+        from django.utils import timezone
+        from datetime import timedelta
+
+        self.client.post(
+            reverse("checkout"),
+            {
+                "delivery_date": (timezone.localdate() + timedelta(days=2)).isoformat(),
+                "postal_code": "4136745890",
+                "address": "رشت، خیابان تست، پلاک ۱۲",
+            },
+        )
         self.assertEqual(Order.objects.filter(user=self.customer).count(), 1)
         self.assertEqual(CartItem.objects.filter(user=self.customer).count(), 0)
         order = Order.objects.get(user=self.customer)
         self.assertEqual(order.total, 480000 * 3)
+        self.assertTrue(order.stock_deducted)
+        self.assertEqual(order.postal_code, "4136745890")
+        self.assertIn("رشت", order.address)
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock_kg, 100 - 3 * 5)
+
+    def _checkout_payload(self, **extra):
+        from datetime import timedelta
+        from django.utils import timezone
+
+        data = {
+            "delivery_date": (timezone.localdate() + timedelta(days=2)).isoformat(),
+            "postal_code": "4136745890",
+            "address": "رشت، خیابان تست، پلاک ۱۲",
+        }
+        data.update(extra)
+        return data
+
+    def test_checkout_blocks_when_stock_low(self):
+        self.product.stock_kg = 5
+        self.product.save(update_fields=["stock_kg"])
+        self.client.login(username="09121234567", password="secret12")
+        self.client.post(reverse("cart_add", args=(self.product.pk,)), {"quantity": 1})
+        item = CartItem.objects.get(user=self.customer)
+        item.quantity = 2
+        item.save()
+        response = self.client.post(reverse("checkout"), self._checkout_payload())
+        self.assertRedirects(response, reverse("user_cart"))
+        self.assertEqual(Order.objects.filter(user=self.customer).count(), 0)
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock_kg, 5)
+
+    def test_cancel_restores_stock(self):
+        self.client.login(username="09121234567", password="secret12")
+        self.client.post(reverse("cart_add", args=(self.product.pk,)), {"quantity": 2})
+        self.client.post(reverse("checkout"), self._checkout_payload())
+        order = Order.objects.get(user=self.customer)
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock_kg, 90)
+        self.client.post(reverse("order_cancel", args=(order.code,)))
+        order.refresh_from_db()
+        self.product.refresh_from_db()
+        self.assertEqual(order.status, OrderStatus.CANCELLED)
+        self.assertFalse(order.stock_deducted)
+        self.assertEqual(self.product.stock_kg, 100)
 
     def test_cart_remove(self):
         self.client.login(username="09121234567", password="secret12")
@@ -216,6 +276,7 @@ class ShopTestCase(TestCase):
         self.client.login(username="09129876543", password="staffpass1")
         for name in (
             "staff_dashboard",
+            "staff_low_stock",
             "staff_orders",
             "staff_products",
             "staff_customers",
@@ -223,6 +284,19 @@ class ShopTestCase(TestCase):
             "staff_product_create",
         ):
             self.assertEqual(self.client.get(reverse(name)).status_code, 200)
+
+    def test_low_stock_page_lists_products(self):
+        self.product.stock_kg = 10
+        self.product.low_stock_kg = 50
+        self.product.save(update_fields=["stock_kg", "low_stock_kg"])
+        self.client.login(username="09129876543", password="staffpass1")
+        page = self.client.get(reverse("staff_low_stock"))
+        self.assertEqual(page.status_code, 200)
+        self.assertContains(page, self.product.name)
+        self.assertContains(page, "هشدار کمبود")
+        dash = self.client.get(reverse("staff_dashboard"))
+        self.assertContains(dash, reverse("staff_low_stock"))
+        self.assertContains(dash, "باز کردن لیست محصولات")
 
     def test_staff_product_create_edit_delete(self):
         from django.core.files.uploadedfile import SimpleUploadedFile
@@ -243,6 +317,8 @@ class ShopTestCase(TestCase):
                 "process": "یک بار الک",
                 "quality": "برنج ممتاز",
                 "weight": "۵ کیلو",
+                "stock_kg": 200,
+                "low_stock_kg": 40,
                 "stars": 5,
                 "wholesale_price": 400000,
                 "retail_price": 450000,
@@ -284,6 +360,8 @@ class ShopTestCase(TestCase):
                 "process": "دوبار الک",
                 "quality": "اقتصادی",
                 "weight": "۱۰ کیلو",
+                "stock_kg": 80,
+                "low_stock_kg": 30,
                 "stars": 3,
                 "wholesale_price": 300000,
                 "retail_price": 350000,
@@ -317,7 +395,7 @@ class ShopTestCase(TestCase):
     def test_staff_can_update_order_status(self):
         self.client.login(username="09121234567", password="secret12")
         self.client.post(reverse("cart_add", args=(self.product.pk,)), {"quantity": 1})
-        self.client.post(reverse("checkout"))
+        self.client.post(reverse("checkout"), self._checkout_payload())
         order = Order.objects.get(user=self.customer)
 
         self.client.logout()

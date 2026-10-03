@@ -1,0 +1,78 @@
+{% extends "staff/base.html" %}
+{% load shop_tags %}
+{% block title %}هشدار کمبود — مدیریت{% endblock %}
+{% block page_title %}هشدار کمبود موجودی{% endblock %}
+{% block content %}
+<section class="flex flex-wrap items-center justify-between gap-4 animate-fade-up">
+  <div>
+    <p class="text-sm text-slate-400">محصولاتی که موجودی‌شان از آستانهٔ تعریف‌شده کمتر است</p>
+  </div>
+  <a href="{% url 'staff_products' %}" class="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-slate-300 hover:border-brand-500/30 hover:text-brand-300">مدیریت همه محصولات</a>
+</section>
+
+<section class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+  <div class="glass-card p-5">
+    <p class="text-xs text-slate-500">هشدار کمبود</p>
+    <p class="mt-2 text-2xl font-extrabold {% if low_stock_count %}text-amber-300{% else %}text-white{% endif %}">{{ low_stock_count|fa_number }}</p>
+  </div>
+  <div class="glass-card p-5">
+    <p class="text-xs text-slate-500">ناموجود (کمتر از یک بسته)</p>
+    <p class="mt-2 text-2xl font-extrabold {% if out_count %}text-rose{% else %}text-white{% endif %}">{{ out_count|fa_number }}</p>
+  </div>
+  <div class="glass-card p-5">
+    <p class="text-xs text-slate-500">راهنما</p>
+    <p class="mt-2 text-sm text-slate-400 leading-6">با ویرایش محصول، عدد موجودی یا آستانه را عوض کنید تا از این لیست خارج شود.</p>
+  </div>
+</section>
+
+<div class="glass-card overflow-hidden p-0 border border-amber-500/20">
+  <div class="overflow-x-auto">
+    <table class="w-full text-right text-sm">
+      <thead class="text-slate-500 border-b border-amber-500/20">
+        <tr>
+          <th class="p-4">محصول</th>
+          <th class="p-4">وزن بسته</th>
+          <th class="p-4">موجودی</th>
+          <th class="p-4">آستانه</th>
+          <th class="p-4">قابل فروش</th>
+          <th class="p-4">عملیات</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in products %}
+        <tr class="border-t border-white/5 hover:bg-amber-500/[0.04]">
+          <td class="p-4">
+            <div class="flex items-center gap-3">
+              <img src="{{ p|product_cover }}" alt="" width="48" height="48" style="border-radius:10px;object-fit:cover;width:48px;height:48px;background:#13262a" />
+              <div>
+                <p class="font-semibold text-white">{{ p.name }}</p>
+                <p class="text-[11px] text-slate-500 mt-1">
+                  {% if p.is_out_of_stock %}<span class="chip bg-rose/15 text-rose">ناموجود</span>
+                  {% else %}<span class="chip bg-amber-500/15 text-amber-300">کمبود</span>{% endif %}
+                </p>
+              </div>
+            </div>
+          </td>
+          <td class="p-4 text-slate-300">{{ p.weight }}</td>
+          <td class="p-4 font-bold {% if p.is_out_of_stock %}text-rose{% else %}text-amber-300{% endif %}" dir="ltr">{{ p.stock_kg|fa_number }} kg</td>
+          <td class="p-4 text-slate-400" dir="ltr">{{ p.low_stock_kg|fa_number }} kg</td>
+          <td class="p-4 text-slate-300">≈{{ p.available_packages|fa_number }} بسته</td>
+          <td class="p-4">
+            <div class="flex flex-wrap gap-2">
+              <a href="{% url 'staff_product_edit' p.pk %}" class="rounded-lg border border-amber-500/30 px-3 py-1.5 text-xs font-semibold text-amber-200 hover:bg-amber-500/10">ویرایش موجودی</a>
+              <a href="{% url 'product_detail' p.pk %}" class="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:border-brand-500/30 hover:text-brand-300" target="_blank">مشاهده</a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td class="p-10 text-center text-slate-400" colspan="6">
+            فعلاً هیچ محصولی در هشدار کمبود نیست.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

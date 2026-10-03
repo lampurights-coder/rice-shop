@@ -44,6 +44,17 @@ class Order(models.Model):
         default=OrderStatus.PROCESSING,
     )
     total = models.PositiveIntegerField(default=0)
+    delivery_date = models.DateField(
+        null=True,
+        blank=True,
+        help_text="تاریخ تحویل درخواستی مشتری",
+    )
+    postal_code = models.CharField(max_length=10, blank=True)
+    address = models.TextField(blank=True)
+    stock_deducted = models.BooleanField(
+        default=False,
+        help_text="اگر موجودی انبار برای این سفارش کم شده باشد True است",
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -55,6 +66,36 @@ class Order(models.Model):
     @property
     def is_cancelable(self):
         return self.status == OrderStatus.PROCESSING
+
+    def apply_stock(self):
+        """Decrease warehouse kg for each line. Returns (ok, error_message)."""
+        if self.stock_deducted:
+            return True, ""
+        from django.db import transaction
+
+        with transaction.atomic():
+            for item in self.items.select_related("product"):
+                product = item.product
+                if not product:
+                    continue
+                ok, need = product.decrease_stock(item.quantity)
+                if not ok:
+                    raise ValueError(
+                        f"موجودی «{item.product_name}» کافی نیست (نیاز: {need} کیلو)"
+                    )
+            self.stock_deducted = True
+            self.save(update_fields=["stock_deducted"])
+        return True, ""
+
+    def restore_stock(self):
+        """Put kg back when an order is cancelled after stock was taken."""
+        if not self.stock_deducted:
+            return
+        for item in self.items.select_related("product"):
+            if item.product_id:
+                item.product.increase_stock(item.quantity)
+        self.stock_deducted = False
+        self.save(update_fields=["stock_deducted"])
 
     @property
     def items_summary(self):

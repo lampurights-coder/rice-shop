@@ -14,7 +14,7 @@
   </div>
 </section>
 
-<section class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+<section class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-5">
   <div class="glass-card animate-fade-up stagger-1 p-6">
     <p class="text-xs text-slate-500">سفارش‌ها</p>
     <p class="mt-2 text-2xl font-extrabold text-white">{{ order_count|fa_number }}</p>
@@ -31,6 +31,13 @@
     <p class="text-xs text-slate-500">درآمد کل</p>
     <p class="mt-2 text-lg font-extrabold text-white">{{ revenue|money }}</p>
   </div>
+  <a href="{% url 'staff_low_stock' %}" class="glass-card animate-fade-up stagger-5 p-6 block transition hover:border-amber-500/30 {% if low_stock_count %}border border-amber-500/25{% endif %}">
+    <p class="text-xs text-slate-500">هشدار کمبود موجودی</p>
+    <p class="mt-2 text-2xl font-extrabold {% if low_stock_count %}text-amber-300{% else %}text-white{% endif %}">{{ low_stock_count|fa_number }}</p>
+    <p class="mt-2 text-xs font-semibold {% if low_stock_count %}text-amber-200/90{% else %}text-slate-500{% endif %}">
+      {% if low_stock_count %}باز کردن لیست محصولات ←{% else %}همه چیز کافی است{% endif %}
+    </p>
+  </a>
 </section>
 
 <div class="glass-card mt-2 overflow-hidden p-0">

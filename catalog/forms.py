@@ -52,6 +52,8 @@ class ProductForm(forms.ModelForm):
             "process",
             "quality",
             "weight",
+            "stock_kg",
+            "low_stock_kg",
             "wholesale_price",
             "retail_price",
             "old_retail_price",
@@ -62,6 +64,8 @@ class ProductForm(forms.ModelForm):
         ]
         labels = {
             "name": "نام محصول",
+            "stock_kg": "موجودی انبار (کیلوگرم)",
+            "low_stock_kg": "آستانه هشدار کمبود (کیلوگرم)",
             "wholesale_price": "قیمت عمده (تومان)",
             "retail_price": "قیمت جزئی (تومان)",
             "old_retail_price": "قیمت قبلی / قبل از تخفیف (تومان)",
@@ -73,6 +77,12 @@ class ProductForm(forms.ModelForm):
         widgets = {
             "name": forms.TextInput(
                 attrs={**_INPUT, "placeholder": "مثلاً: صدری دم‌سیاه آستانه", "autocomplete": "off"}
+            ),
+            "stock_kg": forms.NumberInput(
+                attrs={**_INPUT, "min": 0, "dir": "ltr", "placeholder": "۵۰۰"}
+            ),
+            "low_stock_kg": forms.NumberInput(
+                attrs={**_INPUT, "min": 0, "dir": "ltr", "placeholder": "۵۰"}
             ),
             "wholesale_price": forms.NumberInput(
                 attrs={**_INPUT, "min": 0, "dir": "ltr", "placeholder": "۴۵۰۰۰۰"}

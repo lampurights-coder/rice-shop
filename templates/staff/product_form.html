@@ -55,6 +55,27 @@
               <label for="{{ form.weight.id_for_label }}">{{ form.weight.label }}</label>
               {{ form.weight }}
             </div>
+            <div class="staff-field">
+              <label for="{{ form.stock_kg.id_for_label }}">{{ form.stock_kg.label }}</label>
+              {{ form.stock_kg }}
+              {% if form.stock_kg.errors %}<p class="err">{{ form.stock_kg.errors.0 }}</p>{% endif %}
+              <p class="hint">موجودی کل به کیلو — با هر سفارش موفق کم می‌شود</p>
+            </div>
+            <div class="staff-field">
+              <label for="{{ form.low_stock_kg.id_for_label }}">{{ form.low_stock_kg.label }}</label>
+              {{ form.low_stock_kg }}
+              {% if form.low_stock_kg.errors %}<p class="err">{{ form.low_stock_kg.errors.0 }}</p>{% endif %}
+              <p class="hint">اگر موجودی از این عدد کمتر شود، هشدار کمبود نشان داده می‌شود</p>
+            </div>
+            {% if product %}
+            <div class="staff-field full">
+              <p class="hint" style="margin:0">
+                بسته فعلی: {{ product.package_kg|fa_number }} کیلو ·
+                قابل فروش تقریبی: {{ product.available_packages|fa_number }} بسته
+                {% if product.is_low_stock %} · <span style="color:#f59e0b;font-weight:700">هشدار کمبود</span>{% endif %}
+              </p>
+            </div>
+            {% endif %}
             <div class="staff-field full">
               <label>امتیاز فروشگاه</label>
               <p class="hint" style="margin:0">

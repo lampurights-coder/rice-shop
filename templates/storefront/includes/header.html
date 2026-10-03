@@ -20,14 +20,19 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 11.2c2.2-1.4 4-2 5.5-2s3.3.6 5.5 2" fill="none" stroke="url(#toolGrad)" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="8.2" r="2.6" fill="none" stroke="url(#toolGrad)" stroke-width="1.6"/><path d="M4.8 7.2c2.2-1.8 4.4-2.7 7.2-2.7s5 .9 7.2 2.7" fill="none" stroke="url(#toolGrad)" stroke-width="1.5" stroke-linecap="round"/><path d="M5 19.2c1.4-3.2 3.6-4.8 7-4.8s5.6 1.6 7 4.8" fill="none" stroke="url(#toolGrad)" stroke-width="1.6" stroke-linecap="round"/></svg>
       </a>
       <span class="header-tool-sep" aria-hidden="true"></span>
-      {% if user.is_staff %}
-      <a class="header-tool" href="{% url 'staff_products' %}" id="nav-cart-btn" aria-label="مدیریت محصولات">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h2.2l1.1 10.2a1.5 1.5 0 0 0 1.5 1.3h8.3a1.5 1.5 0 0 0 1.5-1.3L20 8.2H8" fill="none" stroke="url(#toolGrad)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.2" fill="url(#toolGrad)"/><circle cx="17" cy="20" r="1.2" fill="url(#toolGrad)"/></svg>
-      </a>
-      {% else %}
-      <a class="header-tool" href="{% url 'user_cart' %}" id="nav-cart-btn" aria-label="سبد خرید">
+      {% if user.is_authenticated and not user.is_staff %}
+      <a class="header-tool" href="{% url 'user_cart' %}" id="nav-cart-btn" aria-label="سبد خرید" title="سبد خرید">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h2.2l1.1 10.2a1.5 1.5 0 0 0 1.5 1.3h8.3a1.5 1.5 0 0 0 1.5-1.3L20 8.2H8" fill="none" stroke="url(#toolGrad)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.2" fill="url(#toolGrad)"/><circle cx="17" cy="20" r="1.2" fill="url(#toolGrad)"/></svg>
         <span class="header-cart-badge" id="cart-badge"{% if not cart_count %} hidden{% endif %}>{{ cart_count|fa_number }}</span>
+      </a>
+      {% elif not user.is_authenticated %}
+      <a class="header-tool" href="#" id="nav-cart-btn" data-auth-open="login" aria-label="سبد خرید" title="سبد خرید">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h2.2l1.1 10.2a1.5 1.5 0 0 0 1.5 1.3h8.3a1.5 1.5 0 0 0 1.5-1.3L20 8.2H8" fill="none" stroke="url(#toolGrad)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.2" fill="url(#toolGrad)"/><circle cx="17" cy="20" r="1.2" fill="url(#toolGrad)"/></svg>
+        <span class="header-cart-badge" id="cart-badge" hidden>۰</span>
+      </a>
+      {% else %}
+      <a class="header-tool" href="{% url 'staff_dashboard' %}" id="nav-cart-btn" aria-label="پنل مدیریت" title="پنل مدیریت">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h2.2l1.1 10.2a1.5 1.5 0 0 0 1.5 1.3h8.3a1.5 1.5 0 0 0 1.5-1.3L20 8.2H8" fill="none" stroke="url(#toolGrad)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.2" fill="url(#toolGrad)"/><circle cx="17" cy="20" r="1.2" fill="url(#toolGrad)"/></svg>
       </a>
       {% endif %}
       <svg width="0" height="0" aria-hidden="true" focusable="false">

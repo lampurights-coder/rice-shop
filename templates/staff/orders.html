@@ -10,6 +10,7 @@
         <tr>
           <th class="p-4">کد</th>
           <th class="p-4">مشتری</th>
+          <th class="p-4">ارسال</th>
           <th class="p-4">اقلام</th>
           <th class="p-4">مبلغ</th>
           <th class="p-4">وضعیت</th>
@@ -21,6 +22,11 @@
         <tr class="order-row border-t border-white/5">
           <td class="p-4 text-slate-300 font-mono text-xs">{{ o.code }}</td>
           <td class="p-4">{{ o.user.username }}</td>
+          <td class="p-4 text-slate-400 text-xs max-w-[14rem]">
+            {% if o.delivery_date %}<p class="text-amber-200/90 font-semibold">تحویل {{ o.delivery_date|date:"Y/m/d" }}</p>{% endif %}
+            {% if o.postal_code %}<p dir="ltr" class="mt-1">{{ o.postal_code }}</p>{% endif %}
+            {% if o.address %}<p class="mt-1 leading-5">{{ o.address }}</p>{% else %}<p>—</p>{% endif %}
+          </td>
           <td class="p-4 text-slate-300 max-w-xs">{{ o.items_summary }}</td>
           <td class="p-4 text-brand-300 font-semibold">{{ o.total|money }}</td>
           <td class="p-4">
@@ -37,7 +43,7 @@
           <td class="p-4 text-slate-400">{{ o.created_at|date:"Y/m/d H:i" }}</td>
         </tr>
         {% empty %}
-        <tr><td class="p-8 text-center text-slate-400" colspan="6">سفارشی ثبت نشده است.</td></tr>
+        <tr><td class="p-8 text-center text-slate-400" colspan="7">سفارشی ثبت نشده است.</td></tr>
         {% endfor %}
       </tbody>
     </table>

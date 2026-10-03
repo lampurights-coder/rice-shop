@@ -45,9 +45,7 @@
     <p class="label">جمع سبد · {{ cart_line_count|fa_number }} قلم</p>
     <p class="total">{{ cart_total|money }}</p>
   </div>
-  <form method="post" action="{% url 'checkout' %}">{% csrf_token %}
-    <button type="submit" class="btn-primary">ثبت سفارش</button>
-  </form>
+  <a href="{% url 'checkout' %}" class="btn-primary">ثبت سفارش</a>
 </section>
 {% endif %}
 {% endblock %}

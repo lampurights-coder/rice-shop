@@ -21,6 +21,8 @@ class ProductAdmin(admin.ModelAdmin):
         "process",
         "quality",
         "weight",
+        "stock_kg",
+        "low_stock_kg",
         "retail_price",
         "featured",
         "on_deal",
@@ -28,7 +30,7 @@ class ProductAdmin(admin.ModelAdmin):
     )
     list_filter = ("process", "quality", "featured", "on_deal", "is_active")
     search_fields = ("name", "description")
-    list_editable = ("is_active", "featured", "on_deal")
+    list_editable = ("stock_kg", "low_stock_kg", "is_active", "featured", "on_deal")
     inlines = [ProductImageInline, ProductReviewInline]
 
 

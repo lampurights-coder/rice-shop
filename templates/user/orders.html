@@ -11,6 +11,13 @@
     <div>
       <h3>{{ o.code }} <span class="chip chip-{{ o.status }}">{{ o.get_status_display }}</span></h3>
       <p class="meta">{{ o.created_at|date:"Y/m/d" }} · {{ o.items_summary }}</p>
+      {% if o.delivery_date or o.address %}
+      <p class="meta">
+        {% if o.delivery_date %}تحویل: {{ o.delivery_date|date:"Y/m/d" }}{% endif %}
+        {% if o.postal_code %} · کدپستی {{ o.postal_code }}{% endif %}
+      </p>
+      {% if o.address %}<p class="meta">{{ o.address }}</p>{% endif %}
+      {% endif %}
       <p class="price">{{ o.total|money }}</p>
     </div>
     <div>

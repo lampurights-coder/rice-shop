@@ -36,6 +36,7 @@ urlpatterns = [
     path("user/profile/", account_views.profile_view, name="user_profile"),
     # Staff panel
     path("staff/", order_views.staff_dashboard, name="staff_dashboard"),
+    path("staff/low-stock/", order_views.staff_low_stock, name="staff_low_stock"),
     path("staff/orders/", order_views.staff_orders, name="staff_orders"),
     path("staff/orders/<str:code>/status/", order_views.staff_order_status, name="staff_order_status"),
     path("staff/products/", catalog_views.staff_products, name="staff_products"),

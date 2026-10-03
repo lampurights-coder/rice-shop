@@ -1,0 +1,62 @@
+{% extends "user/base.html" %}
+{% load shop_tags %}
+{% block title %}ثبت سفارش — برنج رودی{% endblock %}
+{% block page_title %}ثبت سفارش{% endblock %}
+{% block page_sub %}تاریخ تحویل، کد پستی و آدرس را وارد کنید{% endblock %}
+{% block content %}
+<section class="profile-form-card fade-up checkout-card">
+  <div class="intro">
+    <h3>اطلاعات ارسال</h3>
+    <p>بعد از تکمیل این فرم، سفارش نهایی و از موجودی انبار کم می‌شود.</p>
+  </div>
+
+  <div class="checkout-summary">
+    <p class="label">جمع سبد · {{ cart_line_count|fa_number }} قلم</p>
+    <p class="total">{{ cart_total|money }}</p>
+    <ul class="checkout-lines">
+      {% for item in cart_items %}
+      <li>
+        <span>{{ item.product.name }} × {{ item.quantity|fa_number }}</span>
+        <span>{{ item.line_total|money }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    <div class="up-note">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="field">
+      <label for="{{ form.delivery_date.id_for_label }}">{{ form.delivery_date.label }}</label>
+      <div class="field-wrap">
+        {{ form.delivery_date }}
+      </div>
+      {% if form.delivery_date.errors %}<small class="field-error">{{ form.delivery_date.errors.0 }}</small>{% endif %}
+    </div>
+
+    <div class="field">
+      <label for="{{ form.postal_code.id_for_label }}">{{ form.postal_code.label }}</label>
+      <div class="field-wrap">
+        {{ form.postal_code }}
+      </div>
+      {% if form.postal_code.errors %}<small class="field-error">{{ form.postal_code.errors.0 }}</small>{% endif %}
+    </div>
+
+    <div class="field">
+      <label for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
+      <div class="field-wrap top-icon">
+        {{ form.address }}
+      </div>
+      {% if form.address.errors %}<small class="field-error">{{ form.address.errors.0 }}</small>{% endif %}
+    </div>
+
+    <div class="profile-actions">
+      <button type="submit" class="btn-save">تأیید و ثبت سفارش</button>
+      <a class="btn-ghost" href="{% url 'user_cart' %}">بازگشت به سبد</a>
+    </div>
+  </form>
+</section>
+{% endblock %}
