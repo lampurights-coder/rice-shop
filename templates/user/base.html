@@ -1,0 +1,40 @@
+{% load static shop_tags %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}پنل کاربری — برنج رودی{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'storefront/fonts.css' %}?v=vazir1" />
+  <link rel="stylesheet" href="{% static 'user/panel.css' %}?v=vazir1" />
+</head>
+<body>
+  <div class="up-bg" aria-hidden="true"></div>
+  <div id="sidebarOverlay" class="up-overlay"></div>
+  {% include "user/includes/sidebar.html" %}
+  <div class="up-shell">
+    <header class="up-top">
+      <button id="menuBtn" class="up-menu" type="button" aria-label="منو">☰</button>
+      <div>
+        <h2>{% block page_title %}پنل کاربری{% endblock %}</h2>
+        <p class="sub">{% block page_sub %}{% endblock %}</p>
+      </div>
+      <div class="up-top-meta">
+        <div class="up-clock">
+          <span id="todayDate"></span>
+          <span class="time" id="liveClock" dir="ltr"></span>
+        </div>
+        <a href="{% url 'user_profile' %}" class="up-avatar" id="top-avatar">{% if profile %}{{ profile.full_name|slice:":1" }}{% else %}ک{% endif %}</a>
+      </div>
+    </header>
+    <main class="up-main">
+      {% if messages %}{% for message in messages %}<div class="up-note">{{ message }}</div>{% endfor %}{% endif %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+  <script src="{% static 'user/panel.js' %}"></script>
+</body>
+</html>

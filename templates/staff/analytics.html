@@ -1,0 +1,24 @@
+{% extends "staff/base.html" %}
+{% load shop_tags %}
+{% block active_nav %}analytics{% endblock %}
+{% block page_title %}تحلیل‌ها{% endblock %}
+{% block content %}
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+  <div class="glass-card p-5">
+    <h3 class="text-white font-bold mb-4">سفارش بر اساس وضعیت</h3>
+    <ul class="space-y-2 text-sm text-slate-300">
+      {% for row in by_status %}
+      <li>{{ row.status }} — {{ row.count|fa_number }} سفارش · {{ row.revenue|money }}</li>
+      {% empty %}<li>داده‌ای نیست</li>{% endfor %}
+    </ul>
+  </div>
+  <div class="glass-card p-5">
+    <h3 class="text-white font-bold mb-4">پرفروش‌ترین محصولات</h3>
+    <ul class="space-y-2 text-sm text-slate-300">
+      {% for row in top_products %}
+      <li>{{ row.product_name }} — {{ row.qty|fa_number }} عدد</li>
+      {% empty %}<li>داده‌ای نیست</li>{% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

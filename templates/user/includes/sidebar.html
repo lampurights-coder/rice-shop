@@ -1,0 +1,58 @@
+{% load shop_tags %}
+<aside id="sidebar" class="up-sidebar">
+  <div class="up-brand">
+    <div class="up-brand-mark" aria-hidden="true">
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+    </div>
+    <div>
+      <h1>برنج رودی</h1>
+      <p>پنل کاربری</p>
+    </div>
+    <button id="closeSidebarBtn" class="up-close" type="button" aria-label="بستن منو">×</button>
+  </div>
+  <nav class="up-nav">
+    <p class="up-nav-label">حساب من</p>
+    <ul>
+      <li>
+        <a href="{% url 'user_dashboard' %}" class="{% if active_nav == 'dashboard' %}active{% endif %}">
+          <svg fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/></svg>
+          داشبورد
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'user_orders' %}" class="{% if active_nav == 'orders' %}active{% endif %}">
+          <svg fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/></svg>
+          سفارش‌های من
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'user_cart' %}" class="{% if active_nav == 'cart' %}active{% endif %}">
+          <svg fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/></svg>
+          سبد خرید
+          <span class="up-badge amber">{{ cart_count|fa_number }}</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'user_profile' %}" class="{% if active_nav == 'profile' %}active{% endif %}">
+          <svg fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+          پروفایل
+        </a>
+      </li>
+    </ul>
+  </nav>
+  <div class="up-shop-card">
+    <h3>فروشگاه برنج رودی</h3>
+    <p>ادامه خرید از فروشگاه</p>
+    <a href="{% url 'home' %}">بازگشت به فروشگاه</a>
+  </div>
+  {% if user.is_staff %}
+  <div class="up-shop-card" style="margin-top:12px">
+    <h3>پنل مدیریت</h3>
+    <p>شما مدیر هستید</p>
+    <a href="{% url 'staff_dashboard' %}">رفتن به پنل مدیریت</a>
+  </div>
+  {% endif %}
+  <div style="padding:16px">
+    <a href="{% url 'logout' %}" class="btn-ghost" style="display:block;text-align:center;width:100%">خروج از حساب</a>
+  </div>
+</aside>

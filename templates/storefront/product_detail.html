@@ -1,0 +1,286 @@
+{% extends "storefront/base.html" %}
+{% load shop_tags static %}
+{% block title %}{{ product.name }} — برنج رودی{% endblock %}
+{% block body_class %}page-product-detail{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'storefront/product-detail.css' %}" />{% endblock %}
+{% block content %}
+<main class="pd-main">
+  <div class="pd-leaf-pattern" aria-hidden="true"></div>
+  <nav class="pd-breadcrumb" aria-label="مسیر">
+    <a href="{% url 'home' %}">خانه</a>
+    <span>|</span>
+    <a href="{% url 'product_list' %}">برنج و چاشنی</a>
+    <span>|</span>
+    <span>{{ product.name }}</span>
+  </nav>
+  <div class="pd-layout">
+    <section class="pd-visual" aria-label="تصاویر محصول">
+      <div class="pd-hero-shot" id="product-package">
+        <div class="pd-hero-ring" aria-hidden="true"></div>
+        <div class="pd-hero-glow" aria-hidden="true"></div>
+        <figure class="pd-hero-frame">
+          <img src="{{ product|product_cover }}" alt="{{ product.name }}" id="pack-img" />
+        </figure>
+        <div class="pd-hero-badges">
+          <span>ارگانیک</span>
+          <span>غیرتراریخته</span>
+        </div>
+        <p class="pd-hero-caption" id="pack-title">{{ product.quality }}</p>
+      </div>
+      <div class="pd-thumbs" id="thumbs" role="listbox" aria-label="گالری">
+        {% with imgs=product.images.all %}
+          {% if imgs %}
+            {% for img in imgs %}
+            <button type="button" class="{% if img.is_primary or forloop.first %}is-on{% endif %}" data-src="{{ img.image.url }}" aria-label="نمای {{ forloop.counter|fa_number }}">
+              <img src="{{ img.image.url }}" alt="" />
+            </button>
+            {% endfor %}
+          {% else %}
+            <button type="button" class="is-on" data-src="{{ product|product_cover }}" aria-label="نمای ۱">
+              <img src="{{ product|product_cover }}" alt="" />
+            </button>
+          {% endif %}
+        {% endwith %}
+      </div>
+    </section>
+    <section class="pd-info" aria-label="اطلاعات محصول">
+      <h1 id="product-title">{{ product.name }}</h1>
+      {% if review_stats.has_reviews %}
+      <div class="pd-rating" id="pd-rating">
+        <span class="pd-stars" aria-hidden="true">{{ review_stats.avg|star_glyphs }}</span>
+        <span>({{ review_stats.avg_text }}) {{ review_stats.count|fa_number }} نظر</span>
+      </div>
+      {% endif %}
+      <p class="pd-desc" id="product-desc">
+        {% if product.description %}{{ product.description }}{% else %}
+        {{ product.name }} — {{ product.quality }} با {{ product.process }}. برنج ایرانی با عطر و طعم اصیل، مناسب پخت روزانه و مهمانی.
+        {% endif %}
+      </p>
+      <ul class="pd-features" id="product-features">
+        {% for feat in product.feature_list %}
+        <li>{{ feat }}</li>
+        {% endfor %}
+      </ul>
+      <div class="pd-price" id="product-price">{{ product.retail_price|money }}</div>
+      {% if product.wholesale_price %}
+      <p class="pd-wholesale" id="product-wholesale">قیمت عمده: {{ product.wholesale_price|money }}</p>
+      {% endif %}
+      <div class="pd-options">
+        <div class="pd-option-row">
+          <span class="pd-label">کیفیت</span>
+          <span class="pd-chip is-on">{{ product.quality }}</span>
+        </div>
+        <div class="pd-option-row">
+          <span class="pd-label">وزن</span>
+          <span class="pd-chip is-on">{{ product.weight }}</span>
+        </div>
+      </div>
+      <hr class="pd-divider" />
+      <div class="pd-purchase">
+        <span class="pd-label">تعداد</span>
+        <div class="pd-qty" aria-label="انتخاب تعداد">
+          <button type="button" id="qty-minus" aria-label="کم کردن">−</button>
+          <span id="qty-value">۱</span>
+          <button type="button" id="qty-plus" aria-label="افزودن">+</button>
+        </div>
+        {% if user.is_authenticated and user.is_staff %}
+        <a class="pd-btn pd-btn-cart" href="{% url 'staff_product_edit' product.pk %}">ویرایش در پنل مدیریت</a>
+        {% elif user.is_authenticated %}
+        <form method="post" action="{% url 'cart_add' product.pk %}" id="add-cart-form" style="display:contents">
+          {% csrf_token %}
+          <input type="hidden" name="quantity" id="qty-input" value="1" />
+          <button type="submit" class="pd-btn pd-btn-cart" id="add-cart">افزودن به سبد</button>
+        </form>
+        {% else %}
+        <a class="pd-btn pd-btn-cart" href="#" data-auth-open="login">ورود و افزودن به سبد</a>
+        {% endif %}
+        <a class="pd-btn pd-btn-store" href="{% url 'product_list' %}">بازگشت به فروشگاه</a>
+      </div>
+    </section>
+  </div>
+  {% if product.has_discount %}
+  <div class="pd-ribbon" aria-hidden="true">تخفیف ویژه</div>
+  {% endif %}
+</main>
+
+<section class="pd-more" id="pd-more" aria-label="جزئیات بیشتر محصول">
+  <div class="pd-tabs" role="tablist" aria-label="بخش‌های اطلاعات">
+    <button type="button" class="pd-tab is-on" role="tab" aria-selected="true" data-tab="details" id="tab-details">جزئیات</button>
+    <button type="button" class="pd-tab" role="tab" aria-selected="false" data-tab="about" id="tab-about">درباره ما</button>
+    <button type="button" class="pd-tab" role="tab" aria-selected="false" data-tab="shipping" id="tab-shipping">ارسال</button>
+  </div>
+  <div class="pd-tab-panels">
+    <div class="pd-tab-panel is-on" role="tabpanel" id="panel-details" data-panel="details" aria-labelledby="tab-details">
+      <div class="pd-details-grid">
+        <div class="pd-details-pack">
+          <img src="{{ product|product_cover }}" alt="" id="details-pack-img" />
+          <div class="pd-details-pack-label" id="details-pack-name">{{ product.name }}</div>
+        </div>
+        <div class="pd-details-copy">
+          <p id="details-intro">
+            {% if product.details_paragraph %}
+              {{ product.details_paragraph }}
+            {% else %}
+              {{ product.name }} با {{ product.process }} و کیفیت {{ product.quality }} — مناسب پخت روزانه و مهمانی‌های ایرانی.
+            {% endif %}
+          </p>
+          <ul id="details-bullets">
+            {% for feat in product.feature_list %}
+            <li>{{ feat }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      <div class="pd-cook">
+        <h2>{{ product.cook_title|default:"دستور پخت روی اجاق" }}</h2>
+        <div class="pd-cook-steps">
+          {% for step in product.cook_step_list %}
+          <article class="pd-cook-step{% if forloop.last %} pd-cook-step-wide{% endif %}">
+            <span class="pd-cook-num" aria-hidden="true">{{ forloop.counter|fa_number }}</span>
+            <p>{{ step }}</p>
+          </article>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="pd-tab-panel" role="tabpanel" id="panel-about" data-panel="about" aria-labelledby="tab-about" hidden>
+      <div class="pd-plain">
+        <p>برنج رودی از مزارع خانوادگی شمال ایران برنج ممتاز را مستقیم به سفره شما می‌رساند. تمرکز ما روی کیفیت دانه، عطر طبیعی و بسته‌بندی تازه است.</p>
+      </div>
+    </div>
+    <div class="pd-tab-panel" role="tabpanel" id="panel-shipping" data-panel="shipping" aria-labelledby="tab-shipping" hidden>
+      <div class="pd-plain">
+        <p>ارسال سریع به سراسر کشور با بسته‌بندی محکم برای حفظ تازگی برنج.</p>
+        <ul>
+          <li>پردازش سفارش معمولاً ۱ تا ۲ روز کاری</li>
+          <li>پیگیری مرسوله پس از تحویل به پست</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pd-reviews" id="pd-reviews" aria-label="نظرات مشتریان">
+  {% if messages %}
+  {% for message in messages %}
+  <p class="pd-reviews-based" style="margin-bottom:12px;color:{% if message.tags == 'error' %}#c94b3a{% else %}#163b26{% endif %}">{{ message }}</p>
+  {% endfor %}
+  {% endif %}
+  <div class="pd-reviews-head">
+    <div class="pd-reviews-summary">
+      {% if review_stats.has_reviews %}
+      <div class="pd-reviews-score" id="reviews-score">{{ review_stats.avg_text }}</div>
+      <div>
+        <div class="pd-reviews-stars" id="reviews-stars" aria-hidden="true">{{ review_stats.avg|star_glyphs }}</div>
+        <p class="pd-reviews-based" id="reviews-based">بر اساس {{ review_stats.count|fa_number }} نظر</p>
+      </div>
+      {% else %}
+      <div id="reviews-summary-empty">
+        <p class="pd-reviews-based" id="reviews-based" style="margin:0">هنوز نظری ثبت نشده — اولین نفر باشید</p>
+        <div class="pd-reviews-score" id="reviews-score" hidden></div>
+        <div class="pd-reviews-stars" id="reviews-stars" hidden aria-hidden="true"></div>
+      </div>
+      {% endif %}
+    </div>
+    <button type="button" class="pd-reviews-write" id="write-review">ثبت نظر</button>
+  </div>
+
+  <div class="pd-reviews-list" id="reviews-list">
+    {% for r in reviews %}
+    <article class="pd-review">
+      <div class="pd-review-meta">
+        <div class="pd-review-who">
+          <strong>{{ r.author_name }}</strong>
+          {% if r.verified %}<span class="pd-review-verified">خریدار تأییدشده</span>{% endif %}
+        </div>
+        <span class="pd-review-date">{{ r.created_at|date:"Y/m/d" }}</span>
+      </div>
+      <div class="pd-review-title-row">
+        <span class="pd-review-stars" aria-hidden="true">{{ r.stars|star_glyphs }}</span>
+        <span class="pd-review-title">{{ r.title }}</span>
+      </div>
+      <p class="pd-review-body">{{ r.body }}</p>
+      <p class="pd-review-product">{{ product.name }} — {{ product.quality }}</p>
+      {% if r.has_reply %}
+      <aside class="pd-review-reply">
+        <div class="pd-review-reply-head">
+          <strong>{{ r.reply_name|default:"برنج رودی" }}</strong>
+        </div>
+        <p>{{ r.reply_body }}</p>
+      </aside>
+      {% endif %}
+    </article>
+    {% empty %}
+    <p class="pd-reviews-based" style="padding:8px 0">هنوز نظری برای این محصول نیست.</p>
+    {% endfor %}
+  </div>
+
+  <form class="pd-review-form" id="review-form" method="post" action="{% url 'product_review_create' product.pk %}" {% if not open_review_form %}hidden{% endif %}>
+    {% csrf_token %}
+    <h3>نظر شما</h3>
+    <label>
+      <span>نام شما</span>
+      {{ review_form.author_name }}
+    </label>
+    <label>
+      <span>عنوان</span>
+      {{ review_form.title }}
+    </label>
+    <label>
+      <span>امتیاز (۱ تا ۵)</span>
+      {{ review_form.stars }}
+    </label>
+    <label>
+      <span>متن نظر</span>
+      {{ review_form.body }}
+    </label>
+    <div class="pd-review-form-actions">
+      <button type="submit" class="pd-reviews-write">ارسال</button>
+      <button type="button" class="pd-review-cancel" id="review-cancel">انصراف</button>
+    </div>
+  </form>
+</section>
+
+<div class="pd-toast" id="toast" hidden>به سبد خرید اضافه شد</div>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'storefront/product-detail-ui.js' %}"></script>
+<script src="{% static 'storefront/catalog-live.js' %}?v=soft6"></script>
+<script>
+(function () {
+  var qty = 1;
+  var val = document.getElementById("qty-value");
+  var input = document.getElementById("qty-input");
+  function setQty(n) {
+    qty = Math.max(1, Math.min(99, n));
+    if (val) val.textContent = qty.toLocaleString("fa-IR");
+    if (input) input.value = qty;
+  }
+  var minus = document.getElementById("qty-minus");
+  var plus = document.getElementById("qty-plus");
+  if (minus) minus.addEventListener("click", function () { setQty(qty - 1); });
+  if (plus) plus.addEventListener("click", function () { setQty(qty + 1); });
+
+  var form = document.getElementById("review-form");
+  var writeBtn = document.getElementById("write-review");
+  var cancelBtn = document.getElementById("review-cancel");
+  if (writeBtn && form) {
+    writeBtn.addEventListener("click", function () {
+      form.hidden = false;
+      form.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+  }
+  if (cancelBtn && form) {
+    cancelBtn.addEventListener("click", function () {
+      form.hidden = true;
+    });
+  }
+  {% if open_review_form %}
+  if (form) {
+    form.hidden = false;
+    form.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+  {% endif %}
+})();
+</script>
+{% endblock %}

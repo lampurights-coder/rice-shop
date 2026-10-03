@@ -1,0 +1,81 @@
+{% extends "storefront/base.html" %}
+{% load static %}
+{% block title %}{% if site %}{{ site.brand_name }}{% else %}برنج رودی{% endif %} — برنج طبیعی و باکیفیت{% endblock %}
+{% block content %}
+<section class="hero" id="home">
+  <div class="hero-copy">
+    <h1 class="reveal">
+      {% if site %}{{ site.hero_title }}{% else %}برنج طبیعی ممتاز{% endif %}<br />
+      <span class="hero-subhead">{% if site %}{{ site.hero_subtitle }}{% else %}برای سفره‌های سالم‌تر{% endif %}</span>
+    </h1>
+    <p class="hero-lead reveal">{% if site %}{{ site.hero_lead }}{% else %}برنج ۱۰۰٪ طبیعی و مغذی برای آشپزی خانگی و حرفه‌ای. انتخاب مطمئن هزاران خانواده در سراسر کشور.{% endif %}</p>
+    <div class="hero-actions reveal">
+      <a class="btn btn-primary" href="{% url 'product_list' %}">{% if site %}{{ site.hero_primary_btn }}{% else %}خرید کنید{% endif %} <span aria-hidden="true">←</span></a>
+      <a class="btn btn-outline" href="#about">{% if site %}{{ site.hero_secondary_btn }}{% else %}تماس با ما{% endif %}</a>
+    </div>
+    <div class="hero-stats reveal" role="list">
+      <div class="stat" role="listitem">
+        <div class="stat-value" data-count="{% if site %}{{ site.stat1_value }}{% else %}100{% endif %}" data-suffix="{% if site %}{{ site.stat1_suffix }}{% else %}هزار+{% endif %}">۰</div>
+        <div class="stat-label">{% if site %}{{ site.stat1_label }}{% else %}کشاورز همکار{% endif %}</div>
+      </div>
+      <div class="stat" role="listitem">
+        <div class="stat-value" data-count="{% if site %}{{ site.stat2_value }}{% else %}25{% endif %}" data-suffix="{% if site %}{{ site.stat2_suffix }}{% else %}%{% endif %}">۰</div>
+        <div class="stat-label">{% if site %}{{ site.stat2_label }}{% else %}کیفیت بالاتر{% endif %}</div>
+      </div>
+      <div class="stat" role="listitem">
+        <div class="stat-value" data-count="{% if site %}{{ site.stat3_value }}{% else %}100{% endif %}" data-suffix="{% if site %}{{ site.stat3_suffix }}{% else %}%{% endif %}">۰</div>
+        <div class="stat-label">{% if site %}{{ site.stat3_label }}{% else %}طبیعی{% endif %}</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-visual reveal">
+    <div class="hero-photo-wrap">
+      <img class="hero-photo" src="{% static 'img/farm.jpg' %}" alt="{% if site %}{{ site.brand_name }}{% else %}برنج رودی{% endif %}" width="900" height="700" />
+    </div>
+  </div>
+</section>
+
+<section class="trust-strip" aria-label="اعتماد مشتریان">
+  <div class="trust-left">
+    <div class="avatars" aria-hidden="true">
+      <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&h=80&q=80" alt="" />
+      <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&h=80&q=80" alt="" />
+      <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=80&h=80&q=80" alt="" />
+    </div>
+    <p class="trust-caption">بیش از ۱۰ هزار مشتری<br />با نظر مثبت</p>
+  </div>
+  <button class="seal" type="button" aria-label="مهر کیفیت طبیعی">
+    <svg viewBox="0 0 120 120" class="seal-svg">
+      <defs><path id="seal-circle" d="M60,60 m-42,0 a42,42 0 1,1 84,0 a42,42 0 1,1 -84,0" /></defs>
+      <circle cx="60" cy="60" r="56" fill="#F8F3EE" />
+      <circle cx="60" cy="60" r="38" fill="#163B26" />
+      <text class="seal-text"><textPath href="#seal-circle" startOffset="0%">برنج طبیعی · کیفیت ممتاز · </textPath></text>
+      <path class="seal-arrow" d="M52 68 L60 48 L68 68 M60 52 V72" fill="none" stroke="#F8F3EE" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" transform="rotate(45 60 60)"/>
+    </svg>
+  </button>
+  <div class="trust-right">
+    <p class="trust-caption trust-caption--right">زندگی سالم با<br />محصولات تازه</p>
+      <button class="video-thumb" type="button" id="video-open" aria-label="پخش ویدیو">
+      <img src="{% static 'img/farm.jpg' %}" alt="" />
+      <span class="play-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="currentColor"/></svg></span>
+    </button>
+  </div>
+</section>
+
+<section class="cta-band" id="blog">
+  <div class="cta-band-inner reveal">
+    <h2>{% if site %}{{ site.cta_title }}{% else %}آماده خرید برنج ممتاز هستید؟{% endif %}</h2>
+    <p>{% if site %}{{ site.cta_body }}{% else %}انواع برنج طبیعی را ببینید و سفارش خود را همین حالا ثبت کنید.{% endif %}</p>
+    <a class="btn btn-primary" href="{% url 'product_list' %}">{% if site %}{{ site.cta_button }}{% else %}مشاهده محصولات{% endif %} <span aria-hidden="true">←</span></a>
+  </div>
+</section>
+
+<div class="modal" id="video-modal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="video-title">
+    <button class="modal-close" type="button" data-close aria-label="بستن">×</button>
+    <h2 id="video-title">زندگی سالم با محصولات تازه</h2>
+    <div class="modal-video"><img src="{% static 'img/farm.jpg' %}" alt="تصویر مزرعه" /><p>پیش‌نمایش ویدیو — کلیپ مزرعه برنج رودی</p></div>
+  </div>
+</div>
+{% endblock %}

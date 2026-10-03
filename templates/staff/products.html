@@ -1,0 +1,79 @@
+{% extends "staff/base.html" %}
+{% load shop_tags %}
+{% block title %}محصولات — مدیریت{% endblock %}
+{% block page_title %}مدیریت محصولات{% endblock %}
+{% block content %}
+<section class="flex flex-wrap items-center justify-between gap-4 animate-fade-up">
+  <div>
+    <p class="text-sm text-slate-400">افزودن، ویرایش و حذف محصولات فروشگاه</p>
+  </div>
+  <a href="{% url 'staff_product_create' %}" class="rounded-xl bg-gradient-to-l from-brand-500 to-aqua-500 px-5 py-2.5 text-sm font-bold text-ink-950 shadow-glow transition-all duration-300 hover:shadow-glow-lg hover:brightness-110 active:scale-95">+ افزودن محصول</a>
+</section>
+
+<section class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+  <div class="glass-card p-5"><p class="text-xs text-slate-500">کل محصولات</p><p class="mt-2 text-2xl font-extrabold text-white">{{ total_count|fa_number }}</p></div>
+  <div class="glass-card p-5"><p class="text-xs text-slate-500">فعال</p><p class="mt-2 text-2xl font-extrabold text-white">{{ active_count|fa_number }}</p></div>
+  <div class="glass-card p-5"><p class="text-xs text-slate-500">تخفیفی</p><p class="mt-2 text-2xl font-extrabold text-white">{{ deal_count|fa_number }}</p></div>
+  <div class="glass-card p-5"><p class="text-xs text-slate-500">پرفروش</p><p class="mt-2 text-2xl font-extrabold text-white">{{ featured_count|fa_number }}</p></div>
+</section>
+
+<div class="glass-card overflow-hidden p-0">
+  <div class="overflow-x-auto">
+    <table class="w-full text-right text-sm">
+      <thead class="text-slate-500 border-b border-white/10">
+        <tr>
+          <th class="p-4">نام</th>
+          <th class="p-4">فرآوری</th>
+          <th class="p-4">کیفیت</th>
+          <th class="p-4">وزن</th>
+          <th class="p-4">عمده</th>
+          <th class="p-4">جزئی</th>
+          <th class="p-4">وضعیت</th>
+          <th class="p-4">عملیات</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in products %}
+        <tr class="border-t border-white/5 hover:bg-white/[0.02]">
+          <td class="p-4">
+            <div class="flex items-center gap-3">
+              <img src="{{ p|product_cover }}" alt="" width="44" height="44" style="border-radius:10px;object-fit:cover;width:44px;height:44px;background:#13262a" />
+              <div>
+                <p class="font-semibold text-white">{{ p.name }}</p>
+                <p class="text-[11px] text-slate-500 mt-1">
+                  {% if p.featured %}<span class="chip bg-brand-500/15 text-brand-300">پرفروش</span>{% endif %}
+                  {% if p.on_deal %}<span class="chip bg-amberx/10 text-amberx">تخفیف</span>{% endif %}
+                </p>
+              </div>
+            </div>
+          </td>
+          <td class="p-4 text-slate-300">{{ p.process }}</td>
+          <td class="p-4 text-slate-300">{{ p.quality }}</td>
+          <td class="p-4 text-slate-300">{{ p.weight }}</td>
+          <td class="p-4 text-slate-300" dir="ltr">{{ p.wholesale_price|fa_number }}</td>
+          <td class="p-4 text-brand-300 font-semibold">{{ p.retail_price|money }}</td>
+          <td class="p-4">{% if p.is_active %}<span class="chip bg-brand-500/15 text-brand-300">فعال</span>{% else %}<span class="chip bg-rose/10 text-rose">غیرفعال</span>{% endif %}</td>
+          <td class="p-4">
+            <div class="flex flex-wrap gap-2">
+              <a href="{% url 'staff_product_edit' p.pk %}" class="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:border-brand-500/30 hover:text-brand-300">ویرایش</a>
+              <a href="{% url 'product_detail' p.pk %}" class="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:border-brand-500/30 hover:text-brand-300" target="_blank">مشاهده</a>
+              <form method="post" action="{% url 'staff_product_delete' p.pk %}" onsubmit="return confirm('حذف «{{ p.name }}»؟');">
+                {% csrf_token %}
+                <button type="submit" class="rounded-lg border border-rose/30 px-3 py-1.5 text-xs font-semibold text-rose hover:bg-rose/10">حذف</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td class="p-8 text-center text-slate-400" colspan="8">
+            هنوز محصولی ثبت نشده.
+            <a href="{% url 'staff_product_create' %}" class="text-brand-300 font-semibold">اولین محصول را اضافه کنید</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

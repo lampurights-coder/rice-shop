@@ -1,0 +1,63 @@
+{% extends "user/base.html" %}
+{% load shop_tags %}
+{% block title %}داشبورد — برنج رودی{% endblock %}
+{% block page_title %}سلام، {{ profile.full_name|default:"کاربر رودی" }}{% endblock %}
+{% block page_sub %}خلاصه حساب و خریدهای شما{% endblock %}
+{% block content %}
+<section class="up-stats">
+  <a href="{% url 'user_cart' %}" class="up-stat fade-up stagger-1">
+    <div class="up-stat-icon amber">
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/></svg>
+    </div>
+    <p class="label">اقلام در سبد</p>
+    <p class="value">{{ cart_count|fa_number }}</p>
+  </a>
+  <a href="{% url 'user_cart' %}" class="up-stat fade-up stagger-2">
+    <div class="up-stat-icon">
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    </div>
+    <p class="label">مبلغ سبد</p>
+    <p class="value sm">{{ cart_total|money }}</p>
+  </a>
+  <a href="{% url 'user_orders' %}" class="up-stat fade-up stagger-3">
+    <div class="up-stat-icon mint">
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v.958m12 0a48.55 48.55 0 01-12 0"/></svg>
+    </div>
+    <p class="label">سفارش فعال</p>
+    <p class="value">{{ active_orders|fa_number }}</p>
+  </a>
+  <a href="{% url 'user_orders' %}" class="up-stat fade-up stagger-4">
+    <div class="up-stat-icon">
+      <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    </div>
+    <p class="label">تحویل‌شده</p>
+    <p class="value">{{ delivered_orders|fa_number }}</p>
+  </a>
+</section>
+<section class="up-panel fade-up stagger-3">
+  <div class="up-panel-head">
+    <h3>آخرین خریدها</h3>
+    <a href="{% url 'user_orders' %}">همه سفارش‌ها</a>
+  </div>
+  <div class="up-table-wrap">
+    <table class="up-table">
+      <thead>
+        <tr><th>شماره</th><th>تاریخ</th><th>اقلام</th><th>مبلغ</th><th>وضعیت</th></tr>
+      </thead>
+      <tbody>
+        {% for o in recent_orders %}
+        <tr>
+          <td class="mono">{{ o.code }}</td>
+          <td>{{ o.created_at|date:"Y/m/d" }}</td>
+          <td>{{ o.items_summary }}</td>
+          <td class="strong">{{ o.total|money }}</td>
+          <td><span class="chip chip-{{ o.status }}">{{ o.get_status_display }}</span></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">سفارشی نیست.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

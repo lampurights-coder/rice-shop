@@ -1,0 +1,86 @@
+{% extends "storefront/base.html" %}
+{% block title %}{% if mode == 'signup' %}ثبت‌نام{% else %}ورود{% endif %} — برنج رودی{% endblock %}
+{% block content %}
+<div class="auth-modal is-open" id="auth-page" style="position:relative;min-height:70vh;opacity:1;visibility:visible;pointer-events:auto">
+  <div class="auth-modal-backdrop" style="position:absolute;border-radius:24px"></div>
+  <section class="auth-panel" role="dialog" aria-labelledby="auth-title" style="transform:none">
+    <a class="auth-close" href="{% url 'home' %}" aria-label="بازگشت">×</a>
+    <div class="auth-tabs" role="tablist">
+      <a href="{% url 'login' %}" class="auth-tab{% if mode != 'signup' %} is-on{% endif %}" {% if mode != 'signup' %}aria-selected="true"{% endif %}>ورود</a>
+      <a href="{% url 'signup' %}" class="auth-tab{% if mode == 'signup' %} is-on{% endif %}" {% if mode == 'signup' %}aria-selected="true"{% endif %}>ثبت‌نام</a>
+    </div>
+    <h1 id="auth-title" class="sr-only">{% if mode == 'signup' %}ثبت‌نام{% else %}ورود{% endif %}</h1>
+    <p class="auth-sub">{% if mode == 'signup' %}حساب جدید بسازید و سفارش دهید.{% else %}خوش برگشتید.{% endif %}</p>
+
+    {% if form.errors %}
+    <div class="auth-alert" role="alert">
+      {% if form.non_field_errors %}
+        {{ form.non_field_errors.0 }}
+      {% else %}
+        لطفاً موارد مشخص‌شده را اصلاح کنید
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% if mode == 'signup' %}
+    <form class="auth-form is-on" method="post" action="{% url 'signup' %}" novalidate>
+      {% csrf_token %}
+      <label class="auth-label" for="id_full_name">نام و نام خانوادگی</label>
+      <input class="auth-input{% if form.full_name.errors %} is-invalid{% endif %}" id="id_full_name" name="full_name" type="text" value="{{ form.full_name.value|default:'' }}" placeholder="مثلاً: علی رضایی" autocomplete="name" />
+      {% if form.full_name.errors %}<p class="auth-field-error" data-field="full_name">{{ form.full_name.errors.0 }}</p>{% endif %}
+
+      <label class="auth-label" for="id_phone">شماره موبایل</label>
+      <input class="auth-input{% if form.phone.errors %} is-invalid{% endif %}" id="id_phone" name="phone" type="tel" inputmode="numeric" dir="ltr" value="{{ form.phone.value|default:'' }}" placeholder="09xxxxxxxxx" autocomplete="tel" />
+      {% if form.phone.errors %}<p class="auth-field-error" data-field="phone">{{ form.phone.errors.0 }}</p>{% endif %}
+
+      <div class="auth-grid-2">
+        <div>
+          <label class="auth-label" for="id_city">شهر</label>
+          <input class="auth-input{% if form.city.errors %} is-invalid{% endif %}" id="id_city" name="city" type="text" value="{{ form.city.value|default:'' }}" placeholder="مثلاً: رشت" />
+          {% if form.city.errors %}<p class="auth-field-error" data-field="city">{{ form.city.errors.0 }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="auth-label" for="id_postal_code">کد پستی</label>
+          <input class="auth-input{% if form.postal_code.errors %} is-invalid{% endif %}" id="id_postal_code" name="postal_code" type="text" inputmode="numeric" dir="ltr" value="{{ form.postal_code.value|default:'' }}" placeholder="۱۰ رقم" maxlength="10" />
+          {% if form.postal_code.errors %}<p class="auth-field-error" data-field="postal_code">{{ form.postal_code.errors.0 }}</p>{% endif %}
+        </div>
+      </div>
+
+      <label class="auth-label" for="id_address">آدرس / موقعیت</label>
+      <input class="auth-input{% if form.address.errors %} is-invalid{% endif %}" id="id_address" name="address" type="text" value="{{ form.address.value|default:'' }}" placeholder="خیابان، کوچه، پلاک..." />
+      {% if form.address.errors %}<p class="auth-field-error" data-field="address">{{ form.address.errors.0 }}</p>{% endif %}
+
+      <label class="auth-label" for="id_password">رمز عبور</label>
+      <div class="auth-input-wrap">
+        <input class="auth-input{% if form.password.errors %} is-invalid{% endif %}" id="id_password" name="password" type="password" placeholder="حداقل ۶ کاراکتر" autocomplete="new-password" />
+      </div>
+      {% if form.password.errors %}<p class="auth-field-error" data-field="password">{{ form.password.errors.0 }}</p>{% endif %}
+      <button type="submit" class="auth-btn-primary">ثبت‌نام ←</button>
+    </form>
+    <p class="auth-switch">حساب دارید؟ <a href="{% url 'login' %}">وارد شوید</a></p>
+    {% else %}
+    <form class="auth-form is-on" method="post" action="{% url 'login' %}{% if request.GET.next %}?next={{ request.GET.next|urlencode }}{% endif %}" novalidate>
+      {% csrf_token %}
+      <label class="auth-label" for="id_phone">شماره موبایل</label>
+      <input class="auth-input{% if form.phone.errors %} is-invalid{% endif %}" id="id_phone" name="phone" type="tel" inputmode="numeric" dir="ltr" value="{{ form.phone.value|default:'' }}" placeholder="09xxxxxxxxx" autocomplete="username" />
+      {% if form.phone.errors %}<p class="auth-field-error" data-field="phone">{{ form.phone.errors.0 }}</p>{% endif %}
+
+      <label class="auth-label" for="id_password">رمز عبور</label>
+      <div class="auth-input-wrap">
+        <input class="auth-input{% if form.password.errors %} is-invalid{% endif %}" id="id_password" name="password" type="password" placeholder="••••••••" autocomplete="current-password" />
+      </div>
+      {% if form.password.errors %}<p class="auth-field-error" data-field="password">{{ form.password.errors.0 }}</p>{% endif %}
+      <button type="submit" class="auth-btn-primary">ورود ←</button>
+    </form>
+    <p class="auth-switch">حساب ندارید؟ <a href="{% url 'signup' %}">ثبت‌نام کنید</a></p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+  document.querySelectorAll("#auth-modal form").forEach(function (f) {
+    f.id = "";
+  });
+</script>
+{% endblock %}

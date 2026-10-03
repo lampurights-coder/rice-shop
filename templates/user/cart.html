@@ -1,0 +1,53 @@
+{% extends "user/base.html" %}
+{% load shop_tags %}
+{% block title %}سبد خرید — برنج رودی{% endblock %}
+{% block page_title %}سبد خرید{% endblock %}
+{% block page_sub %}اقلام فعلی قبل از ثبت سفارش{% endblock %}
+{% block content %}
+{% if not cart_items %}
+<div class="up-empty fade-up">
+  <p>سبد خرید خالی است</p>
+  <p class="hint">هنوز محصولی انتخاب نکرده‌اید.</p>
+  <a href="{% url 'product_list' %}">مشاهده فروشگاه</a>
+</div>
+{% else %}
+<div class="up-list fade-up">
+  {% for item in cart_items %}
+  <article class="up-row">
+    <div style="display:flex;gap:14px;align-items:center">
+      <img class="cart-thumb" src="{{ item.product|product_cover }}" alt="" width="64" height="64" style="border-radius:12px;object-fit:cover" />
+      <div>
+        <h3>{{ item.product.name }}</h3>
+        <p class="meta">{{ item.product.weight }} · {{ item.product.quality }}</p>
+        <p class="price">{{ item.line_total|money }}</p>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <form method="post" action="{% url 'cart_update' item.id %}">{% csrf_token %}
+        <input type="hidden" name="delta" value="-1" />
+        <button type="submit" class="qty-box" aria-label="کم کردن">−</button>
+      </form>
+      <span>{{ item.quantity|fa_number }}</span>
+      <form method="post" action="{% url 'cart_update' item.id %}">{% csrf_token %}
+        <input type="hidden" name="delta" value="1" />
+        <button type="submit" class="qty-box" aria-label="افزودن">+</button>
+      </form>
+      <form method="post" action="{% url 'cart_update' item.id %}">{% csrf_token %}
+        <input type="hidden" name="action" value="remove" />
+        <button type="submit" class="btn-icon" aria-label="حذف">×</button>
+      </form>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+<section class="up-summary fade-up stagger-2">
+  <div>
+    <p class="label">جمع سبد · {{ cart_line_count|fa_number }} قلم</p>
+    <p class="total">{{ cart_total|money }}</p>
+  </div>
+  <form method="post" action="{% url 'checkout' %}">{% csrf_token %}
+    <button type="submit" class="btn-primary">ثبت سفارش</button>
+  </form>
+</section>
+{% endif %}
+{% endblock %}

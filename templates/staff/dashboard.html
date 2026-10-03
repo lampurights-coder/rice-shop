@@ -1,0 +1,58 @@
+{% extends "staff/base.html" %}
+{% load shop_tags %}
+{% block page_title %}داشبورد مدیریت{% endblock %}
+{% block content %}
+<section class="glass-card animate-fade-up overflow-hidden p-6 sm:p-8">
+  <div class="absolute inset-x-0 top-0 h-px shimmer-line animate-shimmer"></div>
+  <div class="relative">
+    <div class="chip mb-4 bg-brand-500/10 text-brand-300">
+      <span class="h-1.5 w-1.5 rounded-full bg-brand-400 animate-pulse"></span>
+      خلاصه فروشگاه
+    </div>
+    <h2 class="text-xl font-extrabold text-white sm:text-2xl">سلام، {{ user.username }}</h2>
+    <p class="mt-2 text-sm text-slate-400">وضعیت سفارش‌ها و موجودی محصولات</p>
+  </div>
+</section>
+
+<section class="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+  <div class="glass-card animate-fade-up stagger-1 p-6">
+    <p class="text-xs text-slate-500">سفارش‌ها</p>
+    <p class="mt-2 text-2xl font-extrabold text-white">{{ order_count|fa_number }}</p>
+  </div>
+  <div class="glass-card animate-fade-up stagger-2 p-6">
+    <p class="text-xs text-slate-500">محصولات فعال</p>
+    <p class="mt-2 text-2xl font-extrabold text-white">{{ product_count|fa_number }}</p>
+  </div>
+  <div class="glass-card animate-fade-up stagger-3 p-6">
+    <p class="text-xs text-slate-500">مشتریان</p>
+    <p class="mt-2 text-2xl font-extrabold text-white">{{ customer_count|fa_number }}</p>
+  </div>
+  <div class="glass-card animate-fade-up stagger-4 p-6">
+    <p class="text-xs text-slate-500">درآمد کل</p>
+    <p class="mt-2 text-lg font-extrabold text-white">{{ revenue|money }}</p>
+  </div>
+</section>
+
+<div class="glass-card mt-2 overflow-hidden p-0">
+  <div class="border-b border-white/[0.06] px-5 py-4">
+    <h3 class="text-sm font-bold text-white">آخرین سفارش‌ها</h3>
+  </div>
+  <table class="w-full text-right text-sm">
+    <thead class="text-slate-500 border-b border-white/10">
+      <tr><th class="p-4">کد</th><th class="p-4">کاربر</th><th class="p-4">مبلغ</th><th class="p-4">وضعیت</th></tr>
+    </thead>
+    <tbody>
+      {% for o in recent_orders %}
+      <tr class="border-b border-white/5">
+        <td class="p-4 text-slate-300">{{ o.code }}</td>
+        <td class="p-4">{{ o.user.username }}</td>
+        <td class="p-4">{{ o.total|money }}</td>
+        <td class="p-4">{{ o.get_status_display }}</td>
+      </tr>
+      {% empty %}
+      <tr><td class="p-4" colspan="4">سفارشی نیست</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

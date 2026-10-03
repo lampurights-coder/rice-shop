@@ -1,0 +1,58 @@
+{% load static %}
+<footer class="site-footer" id="about">
+  <div class="footer-brand">
+    <span class="logo-text">{% if site %}{{ site.brand_name }}{% else %}برنج رودی{% endif %}</span>
+    <p>{% if site %}{{ site.footer_tagline }}{% else %}برنج طبیعی ممتاز برای سفره‌های ایرانی.{% endif %}</p>
+    {% if site and site.factory_line %}
+    <p class="footer-factory">{{ site.factory_line }}</p>
+    {% endif %}
+  </div>
+
+  <div class="footer-contact" aria-label="اطلاعات تماس">
+    {% if site and site.phone_list %}
+    <div class="footer-row">
+      <span class="footer-label">شماره تماس</span>
+      <ul class="footer-phones">
+        {% for phone in site.phone_list %}
+        <li><a href="tel:{{ phone }}">{{ phone }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+    {% if site and site.working_hours %}
+    <div class="footer-row">
+      <span class="footer-label">ساعات کاری</span>
+      <p>{{ site.working_hours }}</p>
+    </div>
+    {% endif %}
+    {% if site and site.email %}
+    <div class="footer-row">
+      <span class="footer-label">آدرس ایمیل</span>
+      <p><a class="footer-email" href="mailto:{{ site.email }}">{{ site.email }}</a></p>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="footer-addresses">
+    {% if site and site.address_hq %}
+    <div class="footer-row">
+      <span class="footer-label">دفتر مرکزی</span>
+      <p>{{ site.address_hq }}</p>
+    </div>
+    {% endif %}
+    {% if site and site.address_processing %}
+    <div class="footer-row">
+      <span class="footer-label">واحد پردازش جنوب</span>
+      <p>{{ site.address_processing }}</p>
+    </div>
+    {% endif %}
+    <div class="footer-links">
+      <a href="{% url 'home' %}">خانه</a>
+      <a href="{% url 'product_list' %}">محصولات</a>
+      <a href="{% url 'home' %}#about">تماس با ما</a>
+      {% if user.is_staff %}<a href="{% url 'staff_dashboard' %}">پنل مدیریت</a>{% endif %}
+    </div>
+  </div>
+
+  <p class="footer-copy">© <span id="year"></span> {% if site %}{{ site.brand_name }}{% else %}برنج رودی{% endif %}. همه حقوق محفوظ است.</p>
+</footer>

@@ -1,0 +1,59 @@
+{% load static shop_tags %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}مدیریت — برنج رودی{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'storefront/fonts.css' %}?v=vazir1" />
+  <link rel="stylesheet" href="{% static 'staff/main.css' %}" />
+  <link rel="stylesheet" href="{% static 'staff/asade.css' %}?v=vazir1" />
+  {% block extra_css %}{% endblock %}
+</head>
+<body class="min-h-screen">
+  <div class="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
+    <div class="absolute -top-40 right-[10%] h-[34rem] w-[34rem] rounded-full bg-brand-500/[0.13] blur-[130px] animate-floaty"></div>
+    <div class="absolute bottom-[-10rem] left-[5%] h-[30rem] w-[30rem] rounded-full bg-aqua-500/[0.10] blur-[130px] animate-floaty" style="animation-delay:-2.5s"></div>
+    <div class="absolute inset-0 opacity-[0.35]" style="background-image:radial-gradient(rgba(148,163,184,.08) 1px,transparent 1px);background-size:28px 28px"></div>
+  </div>
+
+  {% include "staff/includes/sidebar.html" %}
+
+  <div class="flex min-h-screen flex-col lg:mr-72">
+    <header class="sticky top-0 z-20 border-b border-white/[0.06] bg-ink-950/70 backdrop-blur-xl">
+      <div class="flex h-[4.5rem] items-center gap-3 px-4 sm:px-6 lg:px-8">
+        <button id="menuBtn" class="icon-btn lg:hidden" type="button" aria-label="باز کردن منو">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+        </button>
+        <h2 class="text-lg font-extrabold text-white">{% block page_title %}مدیریت{% endblock %}</h2>
+        <div class="mr-auto flex items-center gap-3">
+          <a href="{% url 'staff_user_handling' %}?tab=pending" class="relative icon-btn" title="اعلان نظرات" aria-label="اعلان نظرات بدون پاسخ">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg>
+            {% if staff_unreplied_count %}
+            <span class="absolute -top-1 -left-1 grid h-4 min-w-4 place-items-center rounded-full bg-amber-400 px-1 text-[10px] font-extrabold text-ink-950">{{ staff_unreplied_count|fa_number }}</span>
+            {% endif %}
+          </a>
+          <div class="hidden items-center gap-2.5 rounded-xl border border-white/[0.06] bg-ink-800/60 px-4 py-2 md:flex">
+            <span id="todayDate" class="text-xs font-medium text-slate-300"></span>
+            <span class="h-3 w-px bg-white/10"></span>
+            <span id="liveClock" dir="ltr" class="text-xs font-semibold tabular-nums text-brand-300"></span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="chip bg-brand-500/15 text-brand-300">مدیر</span>
+            <span class="text-sm text-slate-400" dir="ltr">{{ user.username }}</span>
+            <a href="{% url 'logout' %}" class="rounded-lg border border-rose/30 px-3 py-1.5 text-xs font-semibold text-rose hover:bg-rose/10">خروج</a>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main class="flex-1 space-y-6 p-4 sm:p-6 lg:p-8">
+      {% if messages %}{% for message in messages %}<p class="text-brand-300">{{ message }}</p>{% endfor %}{% endif %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+  <script src="{% static 'staff/panel.js' %}"></script>
+</body>
+</html>

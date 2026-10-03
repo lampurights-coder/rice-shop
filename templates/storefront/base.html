@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}برنج رودی{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'storefront/fonts.css' %}?v=sample1" />
+  <link rel="stylesheet" href="{% static 'storefront/landing.css' %}?v=sample1" />
+  <link rel="stylesheet" href="{% static 'storefront/auth.css' %}?v=sample1" />
+  {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  {% csrf_token %}
+  <svg class="hero-clip-defs" width="0" height="0" aria-hidden="true" focusable="false">
+    <defs>
+      <clipPath id="heroPhotoClip" clipPathUnits="objectBoundingBox">
+        <path d="M 0.26 0.02 C 0.08 0.0 0.0 0.18 0.0 0.52 C 0.0 0.72 0.04 0.9 0.16 1 L 1 1 L 1 0.16 C 0.78 0.08 0.5 0.04 0.26 0.02 Z"/>
+      </clipPath>
+    </defs>
+  </svg>
+  <div class="page-shell">
+    {% include "storefront/includes/header.html" %}
+    {% block content %}{% endblock %}
+    {% include "storefront/includes/footer.html" %}
+  </div>
+  <div class="cart-toast" id="cart-toast" hidden></div>
+  <script src="{% static 'storefront/landing.js' %}?v=hero1"></script>
+  <script src="{% static 'storefront/auth.js' %}?v=hero1"></script>
+  <script src="{% static 'storefront/auth-django.js' %}?v=hero1"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

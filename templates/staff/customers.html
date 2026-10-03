@@ -1,0 +1,38 @@
+{% extends "staff/base.html" %}
+{% load shop_tags %}
+{% block title %}مشتریان — مدیریت{% endblock %}
+{% block page_title %}مشتریان{% endblock %}
+{% block content %}
+<div class="glass-card overflow-hidden p-0">
+  <div class="border-b border-white/[0.06] px-5 py-4 flex justify-between items-center">
+    <h3 class="text-sm font-bold text-white">فهرست مشتریان</h3>
+    <span class="chip bg-brand-500/15 text-brand-300">{{ customers|length|fa_number }} نفر</span>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-right text-sm">
+      <thead class="text-slate-500 border-b border-white/10">
+        <tr>
+          <th class="p-4">نام</th>
+          <th class="p-4">موبایل</th>
+          <th class="p-4">شهر</th>
+          <th class="p-4">آدرس</th>
+          <th class="p-4">سفارش‌ها</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in customers %}
+        <tr class="border-t border-white/5">
+          <td class="p-4 font-semibold text-white">{{ c.full_name }}</td>
+          <td class="p-4 text-slate-300" dir="ltr">{{ c.phone }}</td>
+          <td class="p-4 text-slate-300">{{ c.city|default:"—" }}</td>
+          <td class="p-4 text-slate-400 max-w-xs truncate">{{ c.address|default:"—" }}</td>
+          <td class="p-4">{{ c.order_count|fa_number }}</td>
+        </tr>
+        {% empty %}
+        <tr><td class="p-8 text-center text-slate-400" colspan="5">مشتری‌ای ثبت نشده است.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

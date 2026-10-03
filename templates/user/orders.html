@@ -1,0 +1,28 @@
+{% extends "user/base.html" %}
+{% load shop_tags %}
+{% block active_nav %}orders{% endblock %}
+{% block page_title %}سفارش‌های قبلی{% endblock %}
+{% block page_sub %}پیگیری و لغو سفارش{% endblock %}
+{% block content %}
+<div class="up-note">فقط سفارش‌های «در حال آماده‌سازی» قابل لغو هستند.</div>
+<div class="up-list">
+  {% for o in orders %}
+  <article class="up-row">
+    <div>
+      <h3>{{ o.code }} <span class="chip chip-{{ o.status }}">{{ o.get_status_display }}</span></h3>
+      <p class="meta">{{ o.created_at|date:"Y/m/d" }} · {{ o.items_summary }}</p>
+      <p class="price">{{ o.total|money }}</p>
+    </div>
+    <div>
+      {% if o.is_cancelable %}
+      <form method="post" action="{% url 'order_cancel' o.code %}">{% csrf_token %}
+        <button type="submit" class="btn-cancel" onclick="return confirm('لغو سفارش؟')">لغو سفارش</button>
+      </form>
+      {% else %}<span style="color:#a0aea6">—</span>{% endif %}
+    </div>
+  </article>
+  {% empty %}
+  <div class="up-empty"><p>هنوز سفارشی ثبت نکرده‌اید.</p><a href="{% url 'product_list' %}">مشاهده فروشگاه</a></div>
+  {% endfor %}
+</div>
+{% endblock %}

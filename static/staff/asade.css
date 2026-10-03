@@ -1,0 +1,9 @@
+/* Staff uses Vazirmatn from the storefront Google Fonts link — no local override. */
+html,
+body,
+button,
+input,
+select,
+textarea {
+  font-family: "Vazirmatn", Tahoma, sans-serif !important;
+}

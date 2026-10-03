@@ -1,0 +1,164 @@
+{% extends "staff/base.html" %}
+{% load static %}
+{% block title %}{{ page_title }} — مدیریت{% endblock %}
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'staff/form.css' %}" />{% endblock %}
+{% block content %}
+<div class="staff-form-wrap">
+  <section class="staff-form-card">
+    <div class="staff-form-head">
+      <div>
+        <h3>متن صفحه اول و اطلاعات فروشگاه</h3>
+        <p>عنوان، آمارها، دعوت به خرید، تماس و آدرس‌ها — همه از اینجا عوض می‌شوند.</p>
+      </div>
+      <a class="staff-back" href="{% url 'home' %}" target="_blank">مشاهده فروشگاه</a>
+    </div>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+      <div class="staff-alert">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <div class="staff-section">
+        <h4 class="staff-section-title"><span>۱</span> صفحه اول — عنوان و توضیح</h4>
+        <div class="staff-grid-2">
+          <div class="staff-field">
+            <label for="{{ form.brand_name.id_for_label }}">{{ form.brand_name.label }}</label>
+            {{ form.brand_name }}
+          </div>
+          <div class="staff-field">
+            <label for="{{ form.footer_tagline.id_for_label }}">{{ form.footer_tagline.label }}</label>
+            {{ form.footer_tagline }}
+          </div>
+          <div class="staff-field">
+            <label for="{{ form.hero_title.id_for_label }}">{{ form.hero_title.label }}</label>
+            {{ form.hero_title }}
+          </div>
+          <div class="staff-field">
+            <label for="{{ form.hero_subtitle.id_for_label }}">{{ form.hero_subtitle.label }}</label>
+            {{ form.hero_subtitle }}
+          </div>
+          <div class="staff-field full">
+            <label for="{{ form.hero_lead.id_for_label }}">{{ form.hero_lead.label }}</label>
+            {{ form.hero_lead }}
+          </div>
+          <div class="staff-field">
+            <label for="{{ form.hero_primary_btn.id_for_label }}">{{ form.hero_primary_btn.label }}</label>
+            {{ form.hero_primary_btn }}
+          </div>
+          <div class="staff-field">
+            <label for="{{ form.hero_secondary_btn.id_for_label }}">{{ form.hero_secondary_btn.label }}</label>
+            {{ form.hero_secondary_btn }}
+          </div>
+        </div>
+      </div>
+
+      <div class="staff-section">
+        <h4 class="staff-section-title"><span>۲</span> آمارهای صفحه اول</h4>
+        <div class="staff-grid-3">
+          <div class="staff-field">
+            <label for="{{ form.stat1_value.id_for_label }}">{{ form.stat1_value.label }}</label>
+            {{ form.stat1_value }}
+          </div>
+          <div class="staff-field">
+            <label for="{{ form.stat1_suffix.id_for_label }}">{{ form.stat1_suffix.label }}</label>
+            {{ form.stat1_suffix }}
+          </div>
+          <div class="staff-field">
+            <label for="{{ form.stat1_label.id_for_label }}">{{ form.stat1_label.label }}</label>
+            {{ form.stat1_label }}
+          </div>
+          <div class="staff-field">
+            <label for="{{ form.stat2_value.id_for_label }}">{{ form.stat2_value.label }}</label>
+            {{ form.stat2_value }}
+          </div>
+          <div class="staff-field">
+            <label for="{{ form.stat2_suffix.id_for_label }}">{{ form.stat2_suffix.label }}</label>
+            {{ form.stat2_suffix }}
+          </div>
+          <div class="staff-field">
+            <label for="{{ form.stat2_label.id_for_label }}">{{ form.stat2_label.label }}</label>
+            {{ form.stat2_label }}
+          </div>
+          <div class="staff-field">
+            <label for="{{ form.stat3_value.id_for_label }}">{{ form.stat3_value.label }}</label>
+            {{ form.stat3_value }}
+          </div>
+          <div class="staff-field">
+            <label for="{{ form.stat3_suffix.id_for_label }}">{{ form.stat3_suffix.label }}</label>
+            {{ form.stat3_suffix }}
+          </div>
+          <div class="staff-field">
+            <label for="{{ form.stat3_label.id_for_label }}">{{ form.stat3_label.label }}</label>
+            {{ form.stat3_label }}
+          </div>
+        </div>
+        <p class="hint" style="margin-top:0.75rem">مثال: عدد «۲۵» + پسوند «%» + برچسب «کیفیت بالاتر»</p>
+      </div>
+
+      <div class="staff-section">
+        <h4 class="staff-section-title"><span>۳</span> دعوت به خرید</h4>
+        <div class="staff-grid-2">
+          <div class="staff-field full">
+            <label for="{{ form.cta_title.id_for_label }}">{{ form.cta_title.label }}</label>
+            {{ form.cta_title }}
+          </div>
+          <div class="staff-field full">
+            <label for="{{ form.cta_body.id_for_label }}">{{ form.cta_body.label }}</label>
+            {{ form.cta_body }}
+          </div>
+          <div class="staff-field">
+            <label for="{{ form.cta_button.id_for_label }}">{{ form.cta_button.label }}</label>
+            {{ form.cta_button }}
+          </div>
+        </div>
+      </div>
+
+      <div class="staff-section">
+        <h4 class="staff-section-title"><span>۴</span> تماس و ساعات کاری</h4>
+        <div class="staff-grid-2">
+          <div class="staff-field full">
+            <label for="{{ form.phone_numbers_text.id_for_label }}">{{ form.phone_numbers_text.label }}</label>
+            {{ form.phone_numbers_text }}
+            <p class="hint">{{ form.phone_numbers_text.help_text }}</p>
+            {% if form.phone_numbers_text.errors %}<p class="err">{{ form.phone_numbers_text.errors.0 }}</p>{% endif %}
+          </div>
+          <div class="staff-field full">
+            <label for="{{ form.working_hours.id_for_label }}">{{ form.working_hours.label }}</label>
+            {{ form.working_hours }}
+          </div>
+          <div class="staff-field">
+            <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+            {{ form.email }}
+            {% if form.email.errors %}<p class="err">{{ form.email.errors.0 }}</p>{% endif %}
+          </div>
+          <div class="staff-field">
+            <label for="{{ form.factory_line.id_for_label }}">{{ form.factory_line.label }}</label>
+            {{ form.factory_line }}
+          </div>
+        </div>
+      </div>
+
+      <div class="staff-section">
+        <h4 class="staff-section-title"><span>۵</span> آدرس‌ها</h4>
+        <div class="staff-grid-2">
+          <div class="staff-field full">
+            <label for="{{ form.address_hq.id_for_label }}">{{ form.address_hq.label }}</label>
+            {{ form.address_hq }}
+          </div>
+          <div class="staff-field full">
+            <label for="{{ form.address_processing.id_for_label }}">{{ form.address_processing.label }}</label>
+            {{ form.address_processing }}
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:0.5rem">
+        <button type="submit" class="staff-btn-primary">ذخیره تغییرات</button>
+        <a href="{% url 'home' %}" class="staff-btn-ghost" target="_blank">پیش‌نمایش صفحه اول</a>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}

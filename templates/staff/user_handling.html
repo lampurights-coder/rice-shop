@@ -1,0 +1,160 @@
+{% extends "staff/base.html" %}
+{% load shop_tags static %}
+{% block title %}رسیدگی به کاربران — مدیریت{% endblock %}
+{% block page_title %}رسیدگی به کاربران{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'staff/user-handling.css' %}" />{% endblock %}
+{% block content %}
+<section class="uh-hero">
+  <div>
+    <h3>صندوق نظرات مشتریان</h3>
+    <p>نظرات جدید را ببینید، پاسخ رسمی بدهید یا در صورت نیاز مخفی کنید. پاسخ شما زیر همان نظر در صفحه محصول نمایش داده می‌شود.</p>
+  </div>
+</section>
+
+<div class="uh-stats">
+  <div class="glass-card uh-stat is-warn p-5">
+    <p class="text-xs text-slate-500">در انتظار پاسخ</p>
+    <p class="mt-2 text-2xl font-extrabold text-amber-300">{{ pending_count|fa_number }}</p>
+  </div>
+  <div class="glass-card uh-stat is-ok p-5">
+    <p class="text-xs text-slate-500">پاسخ‌داده‌شده</p>
+    <p class="mt-2 text-2xl font-extrabold text-brand-300">{{ replied_count|fa_number }}</p>
+  </div>
+  <div class="glass-card uh-stat p-5">
+    <p class="text-xs text-slate-500">کل نظرات</p>
+    <p class="mt-2 text-2xl font-extrabold text-white">{{ all_count|fa_number }}</p>
+  </div>
+</div>
+
+<nav class="uh-tabs mt-5" aria-label="فیلتر نظرات">
+  <a href="?tab=pending" class="uh-tab{% if tab == 'pending' %} is-on is-warn{% endif %}">
+    در انتظار
+    <span class="uh-tab-count">{{ pending_count|fa_number }}</span>
+  </a>
+  <a href="?tab=replied" class="uh-tab{% if tab == 'replied' %} is-on{% endif %}">
+    پاسخ‌داده‌شده
+    <span class="uh-tab-count">{{ replied_count|fa_number }}</span>
+  </a>
+  <a href="?tab=all" class="uh-tab{% if tab == 'all' %} is-on{% endif %}">
+    همه
+    <span class="uh-tab-count">{{ all_count|fa_number }}</span>
+  </a>
+</nav>
+
+<div class="uh-list mt-5">
+  {% for r in reviews %}
+  <article class="uh-card{% if r.needs_reply %} is-pending{% endif %}{% if r.needs_reply and forloop.first %} is-open{% endif %}" data-review-card>
+    <div class="uh-card-top">
+      <div class="uh-who">
+        <div class="uh-avatar{% if r.stars <= 2 %} is-low{% endif %}" aria-hidden="true">{{ r.author_name|slice:":1" }}</div>
+        <div class="uh-meta">
+          <strong>{{ r.author_name }}</strong>
+          <div class="uh-meta-line">
+            <span class="uh-stars" aria-label="{{ r.stars }} از ۵">
+              {% for i in "12345" %}{% if forloop.counter <= r.stars %}★{% else %}☆{% endif %}{% endfor %}
+            </span>
+            <span>{{ r.created_at|date:"Y/m/d — H:i" }}</span>
+            {% if r.verified %}<span class="uh-badge soft">خریدار تأییدشده</span>{% endif %}
+            {% if r.needs_reply %}<span class="uh-badge warn">بدون پاسخ</span>{% endif %}
+            {% if not r.is_public %}<span class="uh-badge muted">مخفی</span>{% endif %}
+            {% if r.has_reply %}<span class="uh-badge ok">پاسخ داده شد</span>{% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="uh-actions">
+        <a class="uh-btn" href="{% url 'product_detail' r.product_id %}" target="_blank" rel="noopener">مشاهده محصول</a>
+        <form method="post" action="{% url 'staff_review_toggle' r.pk %}">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{% url 'staff_user_handling' %}?tab={{ tab }}" />
+          <button type="submit" class="uh-btn">{% if r.is_public %}مخفی کردن{% else %}نمایش عمومی{% endif %}</button>
+        </form>
+        <button type="button" class="uh-btn {% if r.needs_reply %}ghost-warn{% else %}primary{% endif %}" data-reply-toggle>
+          {% if r.has_reply %}ویرایش پاسخ{% else %}پاسخ دادن{% endif %}
+        </button>
+      </div>
+    </div>
+
+    <a class="uh-product" href="{% url 'product_detail' r.product_id %}" target="_blank" rel="noopener">
+      <span aria-hidden="true">◇</span>
+      {{ r.product.name }}
+    </a>
+
+    <h4 class="uh-title">{{ r.title }}</h4>
+    <p class="uh-body">{{ r.body }}</p>
+
+    {% if r.has_reply %}
+    <div class="uh-reply-preview">
+      <p class="label">پاسخ {{ r.reply_name|default:"برنج رودی" }}{% if r.replied_at %} · {{ r.replied_at|date:"Y/m/d H:i" }}{% endif %}</p>
+      <p>{{ r.reply_body }}</p>
+    </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'staff_review_reply' r.pk %}" class="uh-reply-box">
+      {% csrf_token %}
+      <input type="hidden" name="next_tab" value="{{ tab }}" />
+      <label class="uh-field">
+        <span>نام پاسخ‌دهنده (نمایش در فروشگاه)</span>
+        <input name="reply_name" value="{{ r.reply_name|default:'برنج رودی' }}" maxlength="80" />
+      </label>
+      <label class="uh-field">
+        <span>متن پاسخ</span>
+        <textarea name="reply_body" required placeholder="مثلاً: از بازخوردتان سپاسگزاریم؛ بسته‌بندی محصول ضد رطوبت و بهداشتی است.">{{ r.reply_body }}</textarea>
+      </label>
+      <div class="uh-reply-actions">
+        <button type="submit" class="uh-btn primary">
+          {% if r.has_reply %}ذخیره تغییرات{% else %}ارسال پاسخ{% endif %}
+        </button>
+        <button type="button" class="uh-btn" data-reply-cancel>بستن</button>
+        {% if not r.has_reply %}
+        <label class="uh-check">
+          <input type="checkbox" name="hide" value="1" />
+          پس از پاسخ، نظر مخفی شود
+        </label>
+        {% endif %}
+      </div>
+    </form>
+  </article>
+  {% empty %}
+  <div class="glass-card uh-empty">
+    {% if tab == 'pending' %}
+      <strong>صف پاسخ خالی است</strong>
+      <p>فعلاً نظری بدون پاسخ ندارید. وقتی مشتری نظر جدید بگذارد، اینجا و در زنگ اعلان می‌آید.</p>
+    {% elif tab == 'replied' %}
+      <strong>هنوز پاسخی ثبت نشده</strong>
+      <p>از تب «در انتظار» شروع کنید و به نظرات پاسخ دهید.</p>
+    {% else %}
+      <strong>نظری ثبت نشده</strong>
+      <p>وقتی مشتریان در صفحه محصول نظر بگذارند، اینجا جمع می‌شود.</p>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+
+<script>
+(function () {
+  document.querySelectorAll("[data-review-card]").forEach(function (card) {
+    var openBtn = card.querySelector("[data-reply-toggle]");
+    var cancelBtn = card.querySelector("[data-reply-cancel]");
+    var box = card.querySelector(".uh-reply-box");
+    function open() {
+      document.querySelectorAll("[data-review-card].is-open").forEach(function (c) {
+        if (c !== card) c.classList.remove("is-open");
+      });
+      card.classList.add("is-open");
+      var ta = box && box.querySelector("textarea");
+      if (ta) ta.focus();
+    }
+    function close() {
+      card.classList.remove("is-open");
+    }
+    if (openBtn) {
+      openBtn.addEventListener("click", function () {
+        if (card.classList.contains("is-open")) close();
+        else open();
+      });
+    }
+    if (cancelBtn) cancelBtn.addEventListener("click", close);
+  });
+})();
+</script>
+{% endblock %}

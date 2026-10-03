@@ -1,0 +1,217 @@
+{% extends "staff/base.html" %}
+{% load static shop_tags %}
+{% block title %}{{ page_title }} — مدیریت{% endblock %}
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'staff/form.css' %}" />{% endblock %}
+{% block content %}
+<div class="staff-form-wrap">
+  <section class="staff-form-card">
+    <div class="staff-form-head">
+      <div>
+        <h3>{% if mode == 'edit' %}ویرایش محصول{% else %}محصول جدید{% endif %}</h3>
+        <p>فرم چندصفحه‌ای — هر بخش کوتاه است</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        {% if mode == 'edit' and product %}
+        <a class="staff-back" href="{% url 'product_detail' product.pk %}" target="_blank">مشاهده در فروشگاه</a>
+        {% endif %}
+        <a class="staff-back" href="{% url 'staff_products' %}">← بازگشت به لیست</a>
+      </div>
+    </div>
+
+    <nav class="form-pages" id="form-pages" aria-label="صفحات فرم">
+      <button type="button" class="form-page-tab is-on" data-page="1">۱ · اصلی</button>
+      <button type="button" class="form-page-tab" data-page="2">۲ · تصاویر</button>
+      <button type="button" class="form-page-tab" data-page="3">۳ · متن و ویژگی</button>
+      <button type="button" class="form-page-tab" data-page="4">۴ · دستور پخت</button>
+      <button type="button" class="form-page-tab" data-page="5">۵ · وضعیت</button>
+    </nav>
+
+    <form method="post" enctype="multipart/form-data" novalidate id="product-form">
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+      <div class="staff-alert">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <!-- PAGE 1 -->
+      <div class="form-page is-on" data-page-panel="1">
+        <div class="staff-section">
+          <h4 class="staff-section-title"><span>۱</span> اطلاعات و قیمت</h4>
+          <div class="staff-grid-2">
+            <div class="staff-field full">
+              <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+              {{ form.name }}
+              {% if form.name.errors %}<p class="err">{{ form.name.errors.0 }}</p>{% endif %}
+            </div>
+            <div class="staff-field">
+              <label for="{{ form.process.id_for_label }}">{{ form.process.label }}</label>
+              {{ form.process }}
+            </div>
+            <div class="staff-field">
+              <label for="{{ form.quality.id_for_label }}">{{ form.quality.label }}</label>
+              {{ form.quality }}
+            </div>
+            <div class="staff-field">
+              <label for="{{ form.weight.id_for_label }}">{{ form.weight.label }}</label>
+              {{ form.weight }}
+            </div>
+            <div class="staff-field full">
+              <label>امتیاز فروشگاه</label>
+              <p class="hint" style="margin:0">
+                {% if product %}
+                  {% with stats=product.review_stats %}
+                    {% if stats.has_reviews %}
+                      میانگین نظرات مشتریان: {{ stats.avg_text }} از ۵ ({{ stats.count }} نظر) — به‌صورت خودکار به‌روز می‌شود
+                    {% else %}
+                      هنوز نظری ثبت نشده؛ امتیاز بعد از نظرات مشتریان محاسبه می‌شود
+                    {% endif %}
+                  {% endwith %}
+                {% else %}
+                  امتیاز از میانگین نظرات مشتریان محاسبه می‌شود (دستی تنظیم نمی‌شود)
+                {% endif %}
+              </p>
+            </div>
+          </div>
+          <div class="staff-grid-3" style="margin-top:1rem">
+            <div class="staff-field">
+              <label for="{{ form.wholesale_price.id_for_label }}">{{ form.wholesale_price.label }}</label>
+              {{ form.wholesale_price }}
+            </div>
+            <div class="staff-field">
+              <label for="{{ form.retail_price.id_for_label }}">{{ form.retail_price.label }}</label>
+              {{ form.retail_price }}
+            </div>
+            <div class="staff-field">
+              <label for="{{ form.old_retail_price.id_for_label }}">{{ form.old_retail_price.label }}</label>
+              {{ form.old_retail_price }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 2 -->
+      <div class="form-page" data-page-panel="2" hidden>
+        <div class="staff-section" id="images-section"
+             data-mode="{{ mode }}"
+             {% if product %}data-product-id="{{ product.pk }}"
+             data-add-url="{% url 'staff_product_image_add' product.pk %}"{% endif %}>
+          <h4 class="staff-section-title"><span>۲</span> تصاویر</h4>
+          <p class="hint" style="margin-bottom:0.85rem">یکی‌یکی اضافه کنید و تصویر اصلی را انتخاب کنید.</p>
+          <div class="img-grid" id="image-library">
+            {% for img in existing_images %}
+            <article class="img-card{% if img.is_primary %} is-primary{% endif %}" data-id="{{ img.id }}">
+              <img src="{{ img.image.url }}" alt="" />
+              {% if img.is_primary %}<span class="img-badge">اصلی</span>{% endif %}
+              <button type="button" class="img-btn-primary" data-action="primary" data-id="{{ img.id }}">تصویر اصلی</button>
+              <button type="button" class="img-btn-delete" data-action="delete" data-id="{{ img.id }}">حذف</button>
+            </article>
+            {% endfor %}
+          </div>
+          <div class="img-grid" id="pending-previews"></div>
+          <label class="img-drop img-drop-compact" for="id_image_picker">
+            <input type="file" id="id_image_picker" accept="image/*" />
+            <strong>+ افزودن یک تصویر</strong>
+            <span>هر بار یک فایل</span>
+          </label>
+          <input type="file" name="images" id="id_images" accept="image/*" multiple hidden />
+          <input type="hidden" name="primary_new" id="primary_new" value="" />
+          <input type="hidden" name="primary_image" id="primary_image" value="{% if product and product.primary_image %}{{ product.primary_image.id }}{% endif %}" />
+        </div>
+      </div>
+
+      <!-- PAGE 3 -->
+      <div class="form-page" data-page-panel="3" hidden>
+        <div class="staff-section">
+          <h4 class="staff-section-title"><span>۳</span> متن معرفی و ویژگی‌ها</h4>
+          <div class="staff-field">
+            <label for="{{ form.description.id_for_label }}">متن زیر عنوان محصول</label>
+            {{ form.description }}
+            <p class="hint">همان متنی که کنار قیمت و امتیاز دیده می‌شود</p>
+          </div>
+          <div class="staff-field" style="margin-top:1rem">
+            <label for="id_details_text">متن تب «جزئیات»</label>
+            <textarea class="staff-textarea" name="details_text" id="id_details_text" rows="5" placeholder="اگر خالی بماند همان متن بالا استفاده می‌شود">{% if product %}{{ product.details_text }}{% endif %}</textarea>
+          </div>
+
+          <div class="list-builder" style="margin-top:1.25rem" data-list="features">
+            <div class="list-builder-head">
+              <strong>ویژگی‌ها (آیتم‌به‌آیتم)</strong>
+              <span class="hint">هر بار یک مورد اضافه کنید</span>
+            </div>
+            <ul class="list-builder-items" id="features-list">
+              {% if product and product.features %}
+                {% for f in product.features %}
+                <li>
+                  <input class="staff-input" type="text" name="features" value="{{ f }}" />
+                  <button type="button" class="list-remove" aria-label="حذف">×</button>
+                </li>
+                {% endfor %}
+              {% endif %}
+            </ul>
+            <div class="list-add-row">
+              <input class="staff-input" type="text" id="feature-input" placeholder="مثلاً: طعم رستورانی و عطر ماندگار" />
+              <button type="button" class="staff-btn-primary" id="feature-add" style="padding:0.7rem 1rem">+ افزودن</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 4 -->
+      <div class="form-page" data-page-panel="4" hidden>
+        <div class="staff-section">
+          <h4 class="staff-section-title"><span>۴</span> دستور پخت</h4>
+          <div class="staff-field">
+            <label for="id_cook_title">عنوان بخش پخت</label>
+            <input class="staff-input" type="text" name="cook_title" id="id_cook_title" value="{% if product and product.cook_title %}{{ product.cook_title }}{% else %}دستور پخت روی اجاق{% endif %}" />
+          </div>
+          <div class="list-builder" style="margin-top:1.25rem" data-list="cook_steps">
+            <div class="list-builder-head">
+              <strong>مراحل پخت (گام‌به‌گام)</strong>
+              <span class="hint">هر مرحله جدا اضافه شود</span>
+            </div>
+            <ul class="list-builder-items" id="cook-list">
+              {% if product and product.cook_steps %}
+                {% for step in product.cook_steps %}
+                <li>
+                  <span class="list-step-num"></span>
+                  <input class="staff-input" type="text" name="cook_steps" value="{{ step }}" />
+                  <button type="button" class="list-remove" aria-label="حذف">×</button>
+                </li>
+                {% endfor %}
+              {% endif %}
+            </ul>
+            <div class="list-add-row">
+              <input class="staff-input" type="text" id="cook-input" placeholder="متن یک مرحله پخت…" />
+              <button type="button" class="staff-btn-primary" id="cook-add" style="padding:0.7rem 1rem">+ مرحله</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAGE 5 -->
+      <div class="form-page" data-page-panel="5" hidden>
+        <div class="staff-section">
+          <h4 class="staff-section-title"><span>۵</span> وضعیت نمایش</h4>
+          <div class="staff-checks">
+            <label class="staff-check">{{ form.featured }} <span>{{ form.featured.label }}</span></label>
+            <label class="staff-check">{{ form.on_deal }} <span>{{ form.on_deal.label }}</span></label>
+            <label class="staff-check">{{ form.is_active }} <span>{{ form.is_active.label }}</span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="staff-actions form-page-nav">
+        <button type="button" class="staff-btn-ghost" id="page-prev" hidden>قبلی</button>
+        <button type="button" class="staff-btn-primary" id="page-next">صفحه بعد ←</button>
+        <button type="submit" class="staff-btn-primary" id="page-save" hidden>
+          {% if mode == 'edit' %}ذخیره تغییرات{% else %}ثبت محصول{% endif %}
+        </button>
+        <a href="{% url 'staff_products' %}" class="staff-btn-ghost">انصراف</a>
+      </div>
+    </form>
+  </section>
+</div>
+
+<script src="{% static 'staff/product-images.js' %}"></script>
+<script src="{% static 'staff/product-form-pages.js' %}"></script>
+{% endblock %}

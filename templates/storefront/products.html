@@ -1,0 +1,136 @@
+{% extends "storefront/base.html" %}
+{% load shop_tags static %}
+{% block title %}محصولات — برنج رودی{% endblock %}
+{% block body_class %}page-products{% endblock %}
+{% block content %}
+<section class="catalog shop" id="products">
+  <div class="catalog-atmosphere" aria-hidden="true">
+    <div class="catalog-atmosphere__photo" style="--catalog-bg: url('{% static 'img/farm.jpg' %}')"></div>
+    <div class="catalog-atmosphere__wash"></div>
+    <div class="catalog-atmosphere__grain"></div>
+    <div class="catalog-atmosphere__orbs">
+      <span class="catalog-orb catalog-orb--a"></span>
+      <span class="catalog-orb catalog-orb--b"></span>
+      <span class="catalog-orb catalog-orb--c"></span>
+    </div>
+    <svg class="catalog-atmosphere__stalks" viewBox="0 0 1200 220" preserveAspectRatio="none">
+      <path d="M0 180 C120 140 180 200 300 150 C420 100 480 190 600 140 C720 90 780 185 900 145 C1020 105 1100 175 1200 150 L1200 220 L0 220 Z" />
+      <path d="M0 200 C140 170 220 210 360 175 C500 140 560 205 700 170 C840 135 900 200 1040 175 C1120 160 1160 190 1200 180 L1200 220 L0 220 Z" opacity=".45" />
+    </svg>
+  </div>
+  <div class="shop-layout">
+    <div class="shop-main">
+      <form class="shop-filters" id="shop-filters" method="get" action="{% url 'product_list' %}">
+        <label class="catalog-search">
+          <span class="sr-only">جستجوی محصول</span>
+          <input name="q" id="catalog-q" type="search" value="{{ q }}" placeholder="مثلاً: هاشمی، طارم، ممتاز..." autocomplete="off" />
+          <button type="submit" class="catalog-search-btn">جستجو</button>
+        </label>
+        <label class="catalog-sort">
+          <span class="sr-only">مرتب‌سازی</span>
+          <select name="sort">
+            <option value="featured" {% if sort == "featured" %}selected{% endif %}>مرتب شده</option>
+            <option value="price-asc" {% if sort == "price-asc" %}selected{% endif %}>ارزان‌ترین</option>
+            <option value="price-desc" {% if sort == "price-desc" %}selected{% endif %}>گران‌ترین</option>
+            <option value="name" {% if sort == "name" %}selected{% endif %}>نام</option>
+          </select>
+        </label>
+        <input type="hidden" name="process" id="filter-process" value="{{ process }}" />
+        <input type="hidden" name="quality" id="filter-quality" value="{{ quality }}" />
+        <div class="filter-group">
+          <span class="filter-label">نوع فرآوری</span>
+          <div class="filter-row" id="process-filters">
+            <button type="button" data-process="all" class="filter-chip{% if process == 'all' %} is-on{% endif %}">همه</button>
+            <button type="button" data-process="یک بار الک" class="filter-chip{% if process == 'یک بار الک' %} is-on{% endif %}">یک بار الک</button>
+            <button type="button" data-process="دوبار الک" class="filter-chip{% if process == 'دوبار الک' %} is-on{% endif %}">دوبار الک</button>
+          </div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-label">نوع برنج</span>
+          <div class="filter-row" id="quality-filters">
+            <button type="button" data-quality="all" class="filter-chip{% if quality == 'all' %} is-on{% endif %}">همه</button>
+            <button type="button" data-quality="برنج فوق ممتاز" class="filter-chip{% if quality == 'برنج فوق ممتاز' %} is-on{% endif %}">برنج فوق ممتاز</button>
+            <button type="button" data-quality="برنج ممتاز" class="filter-chip{% if quality == 'برنج ممتاز' %} is-on{% endif %}">برنج ممتاز</button>
+            <button type="button" data-quality="اقتصادی" class="filter-chip{% if quality == 'اقتصادی' %} is-on{% endif %}">اقتصادی</button>
+          </div>
+        </div>
+      </form>
+      <div class="shop-meta">
+        <a href="{% url 'product_list' %}" class="clear-filters">پاک کردن فیلترها</a>
+        <p class="catalog-count">
+          {% if q %}نتایج «{{ q }}»: {% endif %}تعداد محصولات: {{ product_count|fa_number }} مورد
+        </p>
+      </div>
+      <div class="table-wrap">
+        <table class="shop-table">
+          <thead>
+            <tr>
+              <th>نام محصول</th><th>نوع فرآوری</th><th>کیفیت</th>
+              <th>قیمت عمده<br /><span>از ان</span></th>
+              <th>قیمت جزئی<br /><span>(هر کیلوگرم)</span></th>
+              <th>مشاهده و خرید</th>
+            </tr>
+          </thead>
+          <tbody id="product-grid">
+            {% for item in products %}
+            <tr>
+              <td class="col-name"><img src="{{ item|product_cover }}" alt="" /><div><strong>{{ item.name }}</strong>{% if item.featured %} <span class="sale-tag">پرفروش</span>{% endif %}</div></td>
+              <td><span class="sieve">{{ item.process }}</span></td>
+              <td>
+                {{ item.quality }}<br />
+                {% with stats=item.review_stats %}
+                  {% if stats.has_reviews %}
+                    <span class="stars">{{ stats.avg|stars_html|safe }}</span>
+                    <small class="rating-avg">({{ stats.avg_text }})</small>
+                  {% else %}
+                    <span class="rating-empty">بدون نظر</span>
+                  {% endif %}
+                {% endwith %}
+              </td>
+              <td class="price">{{ item.wholesale_price|money }}</td>
+              <td class="price">{{ item.retail_price|money }}</td>
+              <td class="col-actions"><a class="product-buy view-btn" href="{% url 'product_detail' item.pk %}">مشاهده محصول</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="catalog-empty">
+                {% if q %}
+                  نتیجه‌ای برای «{{ q }}» پیدا نشد. واژه دیگری مثل «هاشمی» یا «ممتاز» را امتحان کنید.
+                {% else %}
+                  محصولی یافت نشد.
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <aside class="deal-side" aria-label="تخفیفی‌ها">
+      <h2>تخفیفی‌ها</h2>
+      <div id="deal-list">
+        {% for item in deal_products %}
+        <article class="deal-card">
+          <div><strong>{{ item.name }}</strong>
+            {% with stats=item.review_stats %}
+              {% if stats.has_reviews %}
+                <span class="stars">{{ stats.avg|stars_html|safe }}</span>
+                <small class="rating-avg">({{ stats.avg_text }})</small>
+              {% else %}
+                <span class="rating-empty">بدون نظر</span>
+              {% endif %}
+            {% endwith %}
+
+            <div class="deal-prices">{% if item.old_retail_price %}<s>{{ item.old_retail_price|money }}</s>{% endif %}<b>{{ item.retail_price|money }}</b></div>
+          </div>
+          <img src="{{ item|product_cover }}" alt="" />
+        </article>
+        {% endfor %}
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}
+{% block extra_js %}
+<script src="{% static 'storefront/catalog-live.js' %}?v=rate10"></script>
+{% endblock %}

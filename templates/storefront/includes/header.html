@@ -1,0 +1,55 @@
+{% load static shop_tags %}
+<header class="site-header">
+  <a class="logo" href="{% url 'home' %}" aria-label="برنج رودی">
+    <img class="logo-mark" src="{% static 'img/emblem.png' %}" alt="" width="86" height="34" />
+    <span>برنج رودی</span>
+  </a>
+  <nav class="nav" id="main-nav" aria-label="منوی اصلی">
+    <a href="{% url 'home' %}" class="nav-link{% if nav_active == 'home' %} is-active{% endif %}">خانه</a>
+    <a href="{% url 'product_list' %}" class="nav-link{% if nav_active == 'products' %} is-active{% endif %}">محصولات</a>
+    <a href="{% url 'home' %}#about" class="nav-link">تماس با ما</a>
+    <a href="{% url 'home' %}#blog" class="nav-link">بلاگ</a>
+  </nav>
+  <div class="header-actions">
+    <div class="header-tools" aria-label="ابزارهای سریع">
+      <button type="button" class="header-tool" id="nav-search-btn" aria-label="جستجو">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="url(#toolGrad)" stroke-width="1.7"/><path d="M15.4 15.4L20 20" fill="none" stroke="url(#toolGrad)" stroke-width="1.7" stroke-linecap="round"/></svg>
+      </button>
+      <span class="header-tool-sep" aria-hidden="true"></span>
+      <a class="header-tool" href="{% if user.is_authenticated %}{% if user.is_staff %}{% url 'staff_dashboard' %}{% else %}{% url 'user_dashboard' %}{% endif %}{% else %}#{% endif %}" {% if not user.is_authenticated %}data-auth-open="login"{% endif %} aria-label="{% if user.is_staff %}پنل مدیریت{% else %}حساب کاربری{% endif %}">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 11.2c2.2-1.4 4-2 5.5-2s3.3.6 5.5 2" fill="none" stroke="url(#toolGrad)" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="8.2" r="2.6" fill="none" stroke="url(#toolGrad)" stroke-width="1.6"/><path d="M4.8 7.2c2.2-1.8 4.4-2.7 7.2-2.7s5 .9 7.2 2.7" fill="none" stroke="url(#toolGrad)" stroke-width="1.5" stroke-linecap="round"/><path d="M5 19.2c1.4-3.2 3.6-4.8 7-4.8s5.6 1.6 7 4.8" fill="none" stroke="url(#toolGrad)" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </a>
+      <span class="header-tool-sep" aria-hidden="true"></span>
+      {% if user.is_staff %}
+      <a class="header-tool" href="{% url 'staff_products' %}" id="nav-cart-btn" aria-label="مدیریت محصولات">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h2.2l1.1 10.2a1.5 1.5 0 0 0 1.5 1.3h8.3a1.5 1.5 0 0 0 1.5-1.3L20 8.2H8" fill="none" stroke="url(#toolGrad)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.2" fill="url(#toolGrad)"/><circle cx="17" cy="20" r="1.2" fill="url(#toolGrad)"/></svg>
+      </a>
+      {% else %}
+      <a class="header-tool" href="{% url 'user_cart' %}" id="nav-cart-btn" aria-label="سبد خرید">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h2.2l1.1 10.2a1.5 1.5 0 0 0 1.5 1.3h8.3a1.5 1.5 0 0 0 1.5-1.3L20 8.2H8" fill="none" stroke="url(#toolGrad)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.2" fill="url(#toolGrad)"/><circle cx="17" cy="20" r="1.2" fill="url(#toolGrad)"/></svg>
+        <span class="header-cart-badge" id="cart-badge"{% if not cart_count %} hidden{% endif %}>{{ cart_count|fa_number }}</span>
+      </a>
+      {% endif %}
+      <svg width="0" height="0" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="toolGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#f08a2a"/>
+            <stop offset="100%" stop-color="#d43f2b"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+    {% if user.is_authenticated %}
+      {% if user.is_staff %}
+      <a class="btn btn-primary btn-header" href="{% url 'staff_dashboard' %}">پنل مدیریت <span aria-hidden="true">←</span></a>
+      {% else %}
+      <a class="btn btn-primary btn-header" href="{% url 'user_dashboard' %}">حساب من <span aria-hidden="true">←</span></a>
+      {% endif %}
+    {% else %}
+      <a class="btn btn-primary btn-header" href="#" data-auth-open="login">ورود <span aria-hidden="true">←</span></a>
+    {% endif %}
+  </div>
+  <button class="nav-toggle" id="nav-toggle" type="button" aria-label="باز کردن منو" aria-expanded="false" aria-controls="main-nav">
+    <span></span><span></span><span></span>
+  </button>
+</header>
