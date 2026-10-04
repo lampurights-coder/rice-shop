@@ -1,4 +1,3 @@
-# برنج رودی — Django Shop
 
 Unified Django project for **storefront**, **user panel**, and **staff admin** with SQLite.
 
